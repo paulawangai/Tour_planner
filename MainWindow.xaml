@@ -57,6 +57,10 @@
 
             <StackPanel Margin="20">
                 <TextBox Text="{Binding TourName, UpdateSourceTrigger=PropertyChanged}" Height="25" Margin="0,0,0,10"/>
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0,0,0,10"/>
+                <TextBox Text="{Binding NewDestinationName, UpdateSourceTrigger=PropertyChanged}" Height="25" Margin="0,0,0,10"/>
+                <Button Content="Add Destination" Command="{Binding AddDestinationCommand}" Height="25" Margin="0,0,0,10"/>
+                <ListBox ItemsSource="{Binding Destinations}" Height="100" Margin="0,0,0,10"/>
                 <Button Content="Save Tour" Command="{Binding SaveTourCommand}" Height="25"/>
             </StackPanel>
         </Grid>
