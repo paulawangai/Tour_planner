@@ -5,8 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tour_planner"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="400" Width="800">
+    <Viewbox>
+        <Grid Height="169">
+            <!-- Define Rows and Columns -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- For header or toolbar -->
+                <RowDefinition Height="*"/>
+                <!-- Main content area, * implies take remaining space -->
+                <RowDefinition Height="Auto"/>
+                <!-- For status bar or controls -->
+            </Grid.RowDefinitions>
 
-    </Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <!-- Navigation or list panel -->
+                <ColumnDefinition Width="*"/>
+                <!-- Details or main interaction area -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Toolbar or Menu -->
+            <ToolBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                <Button Content="Add Tour" />
+                <Button Content="Edit Tour" />
+                <Button Content="Delete Tour" />
+            </ToolBar>
+
+            <!-- Navigation Pane -->
+            <ListBox Grid.Row="1" Grid.Column="0" Background="LightGray">
+                <ListBoxItem Content="Tour 1"/>
+                <ListBoxItem Content="Tour 2"/>
+                <ListBoxItem Content="Tour 3"/>
+            </ListBox>
+
+            <!-- Main Content Area -->
+            <ContentControl Grid.Row="1" Grid.Column="1" Background="WhiteSmoke">
+                <!-- This is where the detailed view or selected tour info would be displayed -->
+            </ContentControl>
+
+            <!-- Status Bar or Additional Controls -->
+            <StatusBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                <TextBlock Text="Ready"/>
+            </StatusBar>
+        </Grid>
+    </Viewbox>
+
 </Window>
