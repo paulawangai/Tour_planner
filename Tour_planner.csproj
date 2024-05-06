@@ -12,8 +12,7 @@
     <Folder Include="TourPlanner.Tests\" />
     <Folder Include="TourPlanner.DataLayer\" />
     <Folder Include="TourPlanner.BusinessLayer\" />
-    <Folder Include="TourPlanner.Models\" />
-    <Folder Include="TourPlanner.UI\" />
+    <Folder Include="TourPlanner.UI\TourPlanner.Models\" />
   </ItemGroup>
 
 </Project>
