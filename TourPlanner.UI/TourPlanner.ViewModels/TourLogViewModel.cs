@@ -1,30 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using System.ComponentModel;
+using System.Windows.Input;
 using Tour_planner.TourPlanner.Commands;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;  // Ensure correct namespace
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
     public class TourLogViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<TourLog> TourLogs { get; set; }
+        private ObservableCollection<TourLog> _tourLogs;
+        private readonly TourLogService _tourLogService;
         private TourLog _selectedTourLog;
+
+        public ObservableCollection<TourLog> TourLogs
+        {
+            get => _tourLogs;
+            set
+            {
+                _tourLogs = value;
+                OnPropertyChanged(nameof(TourLogs));
+            }
+        }
 
         public TourLog SelectedTourLog
         {
-            get { return _selectedTourLog; }
+            get => _selectedTourLog;
             set
             {
-                _selectedTourLog = value;
-                OnPropertyChanged(nameof(SelectedTourLog));
-                (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                if (_selectedTourLog != value)
+                {
+                    _selectedTourLog = value;
+                    OnPropertyChanged(nameof(SelectedTourLog));
+                    (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
             }
         }
 
@@ -33,34 +44,39 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         public ICommand DeleteTourLogCommand { get; private set; }
         public ICommand RefreshTourLogsCommand { get; private set; }
 
-        public TourLogViewModel()
+        public TourLogViewModel(TourLogService tourLogService)
         {
-            TourLogs = new ObservableCollection<TourLog>();
+            _tourLogService = tourLogService;
+            TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs());
+
             AddTourLogCommand = new RelayCommand(AddTourLog);
             UpdateTourLogCommand = new RelayCommand(UpdateTourLog, CanModifyDeleteTourLog);
             DeleteTourLogCommand = new RelayCommand(DeleteTourLog, CanModifyDeleteTourLog);
             RefreshTourLogsCommand = new RelayCommand(RefreshTourLogs);
-
-            // Dummy data for testing
-            LoadDummyData();
         }
 
         private void AddTourLog()
         {
-            TourLog newLog = new TourLog(); 
+            TourLog newLog = new TourLog();
+            _tourLogService.AddTourLog(newLog);
             TourLogs.Add(newLog);
             SelectedTourLog = newLog;
         }
 
         private void UpdateTourLog()
         {
-            OnPropertyChanged("TourLogs");
+            if (SelectedTourLog != null)
+            {
+                _tourLogService.UpdateTourLog(SelectedTourLog);
+                OnPropertyChanged(nameof(TourLogs));
+            }
         }
 
         private void DeleteTourLog()
         {
             if (SelectedTourLog != null)
             {
+                _tourLogService.DeleteTourLog(SelectedTourLog);
                 TourLogs.Remove(SelectedTourLog);
                 SelectedTourLog = null;
             }
@@ -73,24 +89,14 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 
         private void RefreshTourLogs()
         {
-            // Implement logic to reload tour logs from the data source
-            LoadDummyData(); // Replace with actual data loading method
+            TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs());
         }
-
-        private void LoadDummyData()
-        {
-            // Placeholder for data loading
-            TourLogs.Clear();
-            TourLogs.Add(new TourLog { Comment = "Nice weather", Difficulty = 3 });
-            TourLogs.Add(new TourLog { Comment = "Challenging path", Difficulty = 5 });
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
 }

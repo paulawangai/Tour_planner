@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Windows;
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;  // Adjust namespace as needed
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 
 namespace Tour_planner
@@ -11,16 +12,23 @@ namespace Tour_planner
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Configure and build the application settings
+            // Load configuration
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            // Set up the main application window
+            // Extract the connection string from the configuration
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+
+            // Create instances of the services with the connection string
+            var tourService = new TourService(connectionString);
+            var tourLogService = new TourLogService(connectionString);
+
+            // Set up the main application window and inject the services into the ViewModel
             MainWindow mainWindow = new MainWindow
             {
-                DataContext = new TourViewModel() // Assuming TourViewModel uses some configuration settings
+                DataContext = new TourViewModel(tourService, tourLogService)  // Adjust constructor in ViewModel to accept both services
             };
 
             mainWindow.Show();

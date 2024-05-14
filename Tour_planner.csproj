@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <Folder Include="TourPlanner.Tests\" />
-    <Folder Include="TourPlanner.BusinessLayer\" />
   </ItemGroup>
 
   <ItemGroup>
