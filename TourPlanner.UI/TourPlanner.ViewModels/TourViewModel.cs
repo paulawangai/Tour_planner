@@ -12,80 +12,119 @@ using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
-     public class TourViewModel : INotifyPropertyChanged
-    {
-        private Tour _tour;
-        private string _newDestinationName;
-
-        public string? TourName
+        public class TourViewModel : INotifyPropertyChanged
         {
-            get => _tour.TourName;
-            set
+            private ObservableCollection<Tour> _tours = new ObservableCollection<Tour>();
+            public ObservableCollection<Tour> Tours
             {
-                if (_tour.TourName != value)
+                get => _tours;
+                set
                 {
-                    _tour.TourName = value;
-                    OnPropertyChanged(nameof(TourName));
+                    _tours = value;
+                    OnPropertyChanged(nameof(Tours));
                 }
             }
-        }
 
-        public string? Description
-        {
-            get => _tour.Description;
-            set
+            private Tour _selectedTour;
+            public Tour SelectedTour
             {
-                if (_tour.Description != value)
+                get => _selectedTour;
+                set
                 {
-                    _tour.Description = value;
-                    OnPropertyChanged(nameof(Description));
+                    if (_selectedTour != value)
+                    {
+                        _selectedTour = value;
+                        OnPropertyChanged(nameof(SelectedTour));
+                        UpdateCommandsState();
+                    }
                 }
             }
-        }
 
-        public ObservableCollection<string> Destinations { get; } = new ObservableCollection<string>();
+            public ICommand AddTourCommand { get; private set; }
+            public ICommand DeleteTourCommand { get; private set; }
+            public ICommand SaveTourCommand { get; private set; }
+            public ICommand RefreshCommand { get; private set; }
 
-        public string NewDestinationName
-        {
-            get => _newDestinationName;
-            set
+            public TourViewModel()
             {
-                if (_newDestinationName != value)
+                AddTourCommand = new RelayCommand(AddTour);
+                DeleteTourCommand = new RelayCommand(DeleteTour, CanModifyTour);
+                SaveTourCommand = new RelayCommand(SaveTour, CanModifyTour);
+                RefreshCommand = new RelayCommand(ExecuteRefresh);
+                Tours.CollectionChanged += (s, e) => UpdateCommandsState();
+            }
+
+            private bool CanModifyTour()
+            {
+                return SelectedTour != null;
+            }
+
+            private void AddTour()
+            {
+                Tour newTour = new Tour
                 {
-                    _newDestinationName = value;
-                    OnPropertyChanged(nameof(NewDestinationName));
+                    TourName = "New Tour",
+                    Description = "Description",
+                    From = "Start Location",
+                    To = "Destination",
+                    TransportType = "Bike",  // Default values can be set here
+                    TourDistance = 0,
+                    EstimatedTime = TimeSpan.Zero,
+                    RouteImage = "path_to_default_image.png"
+                };
+                Tours.Add(newTour);
+                SelectedTour = newTour;  // Automatically select the new tour
+            }
+
+            private void DeleteTour()
+            {
+                if (SelectedTour != null)
+                {
+                    Tours.Remove(SelectedTour);
+                    SelectedTour = null;  // Clear selection after deletion
                 }
             }
-        }
 
-        public ICommand AddDestinationCommand { get; }
-        public ICommand SaveTourCommand { get; }
+            private void SaveTour()
+            {
+                if (SelectedTour != null && ValidateTour(SelectedTour))
+                {
+                    // Saving logic here
+                    // Typically you would interact with a database or data service
+                    // Assuming SaveTour actually performs the save operation
+                    Console.WriteLine("Tour saved: " + SelectedTour.TourName);
+                    // Update the UI or inform the user the save was successful
+                }
+            }
 
-        public TourViewModel()
+        private void ExecuteRefresh()
         {
-            _tour = new Tour();
-            AddDestinationCommand = new RelayCommand(AddDestination, CanAddDestination);
-            SaveTourCommand = new RelayCommand(SaveTour);
+            // Implement the logic to refresh the list of tours, e.g., re-fetching from a database
+            Console.WriteLine("Tours list refreshed.");
         }
 
-        private bool CanAddDestination() => !string.IsNullOrEmpty(NewDestinationName);
+        private bool ValidateTour(Tour tour)
+            {
+                // Simple validation logic (expand according to real rules)
+                return !string.IsNullOrEmpty(tour.TourName) &&
+                       !string.IsNullOrEmpty(tour.From) &&
+                       !string.IsNullOrEmpty(tour.To) &&
+                       tour.TourDistance > 0 &&
+                       tour.EstimatedTime.TotalMinutes > 0;
+            }
 
-        private void AddDestination()
-        {
-            Destinations.Add(NewDestinationName);
-            NewDestinationName = string.Empty;
-        }
+            private void UpdateCommandsState()
+            {
+                // Manually refresh command states that depend on the selection
+                (DeleteTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (SaveTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
 
-        private void SaveTour()
-        {
-            // Save logic
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
 
 }

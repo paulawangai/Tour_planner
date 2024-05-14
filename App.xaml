@@ -4,6 +4,45 @@
              xmlns:local="clr-namespace:Tour_planner"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- Base Font Family and Size -->
+        <FontFamily x:Key="BaseFontFamily">Segoe UI</FontFamily>
+
+        <!-- Color Definitions -->
+        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#333333"/>
+        <!-- Dark Gray for contrast -->
+        <SolidColorBrush x:Key="LightTextBrush" Color="#FFFFFF"/>
+        <!-- White text -->
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#F5F5F5"/>
+
+        <!-- Styles for TextBlocks (general text elements) -->
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource BaseFontFamily}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColorBrush}"/>
+        </Style>
+
+        <!-- Styles for Headings -->
+        <Style x:Key="HeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColorBrush}"/>
+        </Style>
+
+        <!-- Styles for Buttons -->
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource BaseFontFamily}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{StaticResource LightTextBrush}"/>
+            <Setter Property="Background" Value="{StaticResource LightTextBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryColorBrush}"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF5C7BFE"/>
+                    <!-- Lighter blue on hover for better visibility -->
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>

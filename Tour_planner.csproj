@@ -10,8 +10,12 @@
 
   <ItemGroup>
     <Folder Include="TourPlanner.Tests\" />
-    <Folder Include="TourPlanner.DataLayer\" />
     <Folder Include="TourPlanner.BusinessLayer\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
   </ItemGroup>
 
 </Project>

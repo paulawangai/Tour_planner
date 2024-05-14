@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="Tour_planner.TourPlanner.UI.TourPlanner.Views.TourView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="450"
+             FontFamily="{StaticResource BaseFontFamily}"
+             Background="{StaticResource LightTextBrush}">
+
+    <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Text="Tour Details" FontSize="20" FontWeight="Bold" Margin="5"/>
+
+            <!-- Main Content Area for Tour Details -->
+            <StackPanel Grid.Row="1" Margin="5">
+                <Label Content="Tour Name:" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.TourName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="Description:" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="From:" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.From, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="To:" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.To, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="Transport Type:" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.TransportType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="Distance (km):" Margin="5"/>
+                <TextBox Text="{Binding SelectedTour.TourDistance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <Label Content="Estimated Time (hrs):" Margin="5"/>
+                <TextBox Text="{Binding SelectedResult.EstimatedTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                
+                <!-- Image to display the route map -->
+                <Label Content="Route Map: " Margin="5"/>
+                <Image Source="{Binding SelectedTour.RouteImage}" Height="150" Margin="5"/>
+            </StackPanel>
+
+            <!-- Buttons for Actions -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+            <Button Content="Save" Foreground="White" Background="White" Command="{Binding SaveTourCommand}" Margin="5"/>
+            <Button Content="Delete" Foreground="White" Background="White" Command="{Binding DeleteTourCommand}" Margin="5"/>
+            </StackPanel>
+        </Grid>
+
+    </UserControl>

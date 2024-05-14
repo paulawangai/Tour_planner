@@ -14,8 +14,8 @@ namespace Tour_planner.TourPlanner.Commands
 
         public RelayCommand(Action execute, Func<bool> canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException("execute");
-            _canExecute = canExecute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this._canExecute = canExecute;
         }
 
         public bool CanExecute(object parameter)
@@ -33,6 +33,12 @@ namespace Tour_planner.TourPlanner.Commands
         {
             _execute();
         }
+
+        public void RaiseCanExecuteChanged() 
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
     }
+
 
 }
