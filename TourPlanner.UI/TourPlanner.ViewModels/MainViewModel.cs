@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
@@ -11,9 +12,9 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
     {
         private TourViewModel _tourViewModel;
 
-        public MainViewModel()
+        public MainViewModel(TourService tourService, TourLogService tourLogService)
         {
-            _tourViewModel = new TourViewModel();
+            _tourViewModel = new TourViewModel(tourService, tourLogService);
             // Initialize other view models or services 
         }
 

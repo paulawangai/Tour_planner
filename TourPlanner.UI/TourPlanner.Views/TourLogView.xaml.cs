@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
@@ -21,10 +22,16 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
     /// </summary>
     public partial class TourLogView : UserControl
     {
+        public TourLogService TourLogService { get; }
+
         public TourLogView()
         {
             InitializeComponent();
-            DataContext = new TourLogViewModel();
+        }
+        public TourLogView(TourLogService tourLogService) : this()
+        {
+            TourLogService = tourLogService;
+            DataContext = new TourLogViewModel(tourLogService);
         }
     }
 }
