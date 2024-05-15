@@ -20,7 +20,7 @@ namespace Tour_planner.TourPlanner.DataLayer
             if (!optionsBuilder.IsConfigured)
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()
-                    .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../Tour_planner"))
+                    .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../"))
                     .AddJsonFile("appsettings.json")
                     .Build();
 

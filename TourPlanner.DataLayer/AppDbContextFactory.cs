@@ -11,7 +11,7 @@ namespace Tour_planner.TourPlanner.DataLayer
         public AppDbContext CreateDbContext(string[] args)
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../Tour_planner")) 
+                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../")) 
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
