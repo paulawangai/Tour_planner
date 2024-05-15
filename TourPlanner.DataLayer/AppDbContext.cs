@@ -17,20 +17,20 @@ namespace Tour_planner.TourPlanner.DataLayer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Ensure the DbContext only configures itself if it has not been configured externally.
             if (!optionsBuilder.IsConfigured)
             {
-                // Set the base path for the configuration builder to the current directory of the application.
-                // This helps in situations where the app might be executed from paths that are not the project root.
                 IConfigurationRoot configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../Tour_planner"))
+                    .AddJsonFile("appsettings.json")
                     .Build();
 
-                // Retrieve the connection string from appsettings.json by the key DefaultConnection
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
+                Console.WriteLine($"Connection string: {connectionString}"); // This will print the connection string
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("The connection string is null or empty.");
+                }
 
-                // Use Npgsql with the connection string retrieved from the configuration.
                 optionsBuilder.UseNpgsql(connectionString);
             }
         }
