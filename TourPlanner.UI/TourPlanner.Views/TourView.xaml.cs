@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
 {
@@ -23,6 +24,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
         public TourView()
         {
             InitializeComponent();
+            this.DataContext = new TourViewModel();
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

@@ -12,6 +12,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
     {
         private TourViewModel _tourViewModel;
 
+        public MainViewModel()
+        {
+        }
+
         public MainViewModel(TourService tourService, TourLogService tourLogService)
         {
             _tourViewModel = new TourViewModel(tourService, tourLogService);

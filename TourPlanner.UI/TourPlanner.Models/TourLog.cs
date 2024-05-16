@@ -19,6 +19,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
         private double totalDistance;
         private TimeSpan totalTime;
         private int rating;
+        private string _statusMessage;
         private int tourId; //Foreign key to the tour
         private Tour tour; //Navigation property for the related tour
 
@@ -54,6 +55,16 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
                     dateTime = value;
                     OnPropertyChanged(nameof(DateTime));
                 }
+            }
+        }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged(nameof(StatusMessage));
             }
         }
 

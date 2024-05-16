@@ -5,53 +5,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="450"
-             FontFamily="{StaticResource BaseFontFamily}"
-             Background="{StaticResource LightTextBrush}">
+             d:DesignHeight="800" d:DesignWidth="650">
 
-    <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <Grid Margin="10" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <TextBlock Text="Tour Details" FontSize="20" FontWeight="Bold" Margin="5"/>
+        <!-- ListView for Tour Listing -->
+        <ListView ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour}" Grid.Row="0" Margin="5" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Tour Name" DisplayMemberBinding="{Binding TourName}" Width="Auto"/>
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="Auto"/>
+                    <GridViewColumn Header="From" DisplayMemberBinding="{Binding From}" Width="Auto"/>
+                    <GridViewColumn Header="To" DisplayMemberBinding="{Binding To}" Width="Auto"/>
+                    <GridViewColumn Header="Transport Type" DisplayMemberBinding="{Binding TransportType}" Width="100"/>
+                    <GridViewColumn Header="Distance (km)" DisplayMemberBinding="{Binding TourDistance}" Width="90"/>
+                    <GridViewColumn Header="Time (hrs)" DisplayMemberBinding="{Binding EstimatedTime}" Width="120"/>
+                    
+                </GridView>
+            </ListView.View>
+        </ListView>
 
-            <!-- Main Content Area for Tour Details -->
-            <StackPanel Grid.Row="1" Margin="5">
-                <Label Content="Tour Name:" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.TourName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="Description:" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="From:" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.From, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="To:" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.To, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="Transport Type:" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.TransportType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="Distance (km):" Margin="5"/>
-                <TextBox Text="{Binding SelectedTour.TourDistance, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <Label Content="Estimated Time (hrs):" Margin="5"/>
-                <TextBox Text="{Binding SelectedResult.EstimatedTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-                
-                <!-- Image to display the route map -->
-                <Label Content="Route Map: " Margin="5"/>
-                <Image Source="{Binding SelectedTour.RouteImage}" Height="150" Margin="5"/>
-            </StackPanel>
-
-            <!-- Buttons for Actions -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
-            <Button Content="Save" Foreground="White" Background="White" Command="{Binding SaveTourCommand}" Margin="5"/>
-            <Button Content="Delete" Foreground="White" Background="White" Command="{Binding DeleteTourCommand}" Margin="5"/>
-            </StackPanel>
-        </Grid>
-
-    </UserControl>
+        <!-- Buttons for Actions -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+            <Button Content="Add New Tour" Command="{Binding AddTourCommand}" Margin="5"/>
+            <Button Content="Save" Command="{Binding SaveTourCommand}" Margin="5"/>
+            <Button Content="Update Selected Tour" Command="{Binding UpdateTourCommand}" Margin="5"/>
+            <Button Content="Delete Selected Tour" Command="{Binding DeleteTourCommand}" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

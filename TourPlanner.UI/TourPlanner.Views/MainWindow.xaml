@@ -1,60 +1,60 @@
-﻿<Window x:Class="Tour_planner.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
-        Title="Tour Planner" Height="800" Width="1200">
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
+    xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av" x:Class="Tour_planner.MainWindow"
+    Title="Tour Planner" Height="1023" Width="1213">
 
     <DockPanel LastChildFill="True">
-        <!-- Toolbar at the top for file menus and options -->
-        <ToolBar DockPanel.Dock="Top">
-            <Button Content="File" />
-            <Button Content="Edit" />
-            <Button Content="Options" />
-            <Button Content="Help" />
-        </ToolBar>
 
-        <!-- Status Bar at the bottom for displaying status messages -->
-        <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem Content="Ready" />
-        </StatusBar>
 
         <!-- Main content area -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />
-                <!-- Column for the list of tours -->
-                <ColumnDefinition Width="*" />
-                <!-- Column for details, map, and logs -->
+                <!-- Adjusted for TourView -->
+                <ColumnDefinition Width="*"/>
+                <!-- Remaining space for Map and TourLogs -->
             </Grid.ColumnDefinitions>
 
-            <!-- List of tours displayed in a ListBox -->
-            <ListBox Grid.Column="0" Margin="5" Name="lstTours" ItemsSource="{Binding Tours}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
 
-            <!-- Grid for Tour Details and Map, and Tour Logs under the map -->
-            <Grid Grid.Column="1">
+
+            <!-- List of tours displayed in a ListBox -->
+            <StackPanel Grid.Column="0" Margin="5">
+                <TextBlock Text="Tours" FontWeight="Bold" FontSize="16" Margin="5"/>
+                <ListBox ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour}" Height="400" VerticalAlignment="Top" av:ItemsSource="{av:SampleData ItemCount=5}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding TourName}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Buttons for Tour Actions -->
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                    <Button Content="Add New Tour" Command="{Binding AddTourCommand}" Margin="2"/>
+                    <Button Content="Update Selected Tour" Command="{Binding UpdateTourCommand}" Margin="2"/>
+                    <Button Content="Delete Selected Tour" Command="{Binding DeleteTourCommand}" Margin="2"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Map and Tour Logs Area -->
+            <Grid Grid.Column="2" Margin="5">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <!-- Row for Tour Details and Map -->
-                    <RowDefinition Height="200" />
-                    <!-- Row for Tour Logs -->
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="300"/>
                 </Grid.RowDefinitions>
 
-                <!-- Tour Details and Map Area -->
+                <!-- Map Area -->
                 <StackPanel Grid.Row="0" Margin="5">
-                    <!--local:TourDetailsView DataContext="{Binding SelectedTour}" /-->
-                    <!-- Map display using an Image control -->
-                    <Image Source="C:\Users\Michel\Pictures\Screenshots\Screenshot 2024-05-13 100847.png" Margin="10" Stretch="Fill" />
-                    <!--<Image Source="{Binding SelectedTour.MapImagePath}" Height="200" Margin="10" Stretch="Fill" />-->
+                    <Image Source="C:\Users\Michel\Pictures\Screenshots\Screenshot 2024-05-13 100847.png" Margin="10" Stretch="Fill" Height="700" />
                 </StackPanel>
 
                 <!-- Tour Logs Area -->
-                <local:TourLogView Grid.Row="1" DataContext="{Binding SelectedTour.TourLogs}" Margin="5" />
+                <StackPanel Grid.Row="1" Margin="5">
+                    <TextBlock Text="Tour Logs" FontWeight="Bold" FontSize="16" Margin="5" TextAlignment="Center"/>
+                    <local:TourLogView DataContext="{Binding SelectedTour.TourLogsViewModel}" />
+                </StackPanel>
             </Grid>
         </Grid>
     </DockPanel>

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Tour_planner.TourPlanner.Commands;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
-using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;  // Ensure correct namespace
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;  
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
@@ -13,6 +13,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         private ObservableCollection<TourLog> _tourLogs;
         private readonly TourLogService _tourLogService;
         private TourLog _selectedTourLog;
+        private string _statusMessage; // Property to hold the status message
+
 
         public ObservableCollection<TourLog> TourLogs
         {
@@ -39,6 +41,19 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             }
         }
 
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                if (_statusMessage != value)
+                {
+                    _statusMessage = value;
+                    OnPropertyChanged(nameof(StatusMessage));
+                }
+            }
+        }
+
         public ICommand AddTourLogCommand { get; private set; }
         public ICommand UpdateTourLogCommand { get; private set; }
         public ICommand DeleteTourLogCommand { get; private set; }
@@ -57,20 +72,34 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 
         private void AddTourLog()
         {
-            TourLog newLog = new TourLog();
-            _tourLogService.AddTourLog(newLog);
-            TourLogs.Add(newLog);
-            SelectedTourLog = newLog;
+            TourLog newLog = new TourLog();  
+            if (IsValidTourLog(newLog))
+            {
+                _tourLogService.AddTourLog(newLog);
+                TourLogs.Add(newLog);
+                SelectedTourLog = newLog;
+                StatusMessage = "New tour log added successfully!";
+            }
+            else
+            {
+                StatusMessage = "Failed to add tour log. Please check the tour log details are correct and complete.";
+            }
         }
 
         private void UpdateTourLog()
         {
-            if (SelectedTourLog != null)
+            if (SelectedTourLog != null && IsValidTourLog(SelectedTourLog))
             {
                 _tourLogService.UpdateTourLog(SelectedTourLog);
-                OnPropertyChanged(nameof(TourLogs));
+                OnPropertyChanged(nameof(TourLogs)); // Refresh the binding
+                StatusMessage = "Tour log updated successfully!";
+            }
+            else
+            {
+                StatusMessage = "Update failed. Ensure all fields are correctly filled and valid.";
             }
         }
+
 
         private void DeleteTourLog()
         {
@@ -86,6 +115,16 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         {
             return SelectedTourLog != null;
         }
+
+        private bool IsValidTourLog(TourLog tourLog)
+        {
+            return !string.IsNullOrEmpty(tourLog.Comment) &&
+                   tourLog.Difficulty > 0 &&
+                   tourLog.TotalDistance > 0 &&
+                   tourLog.TotalTime > TimeSpan.Zero &&
+                   tourLog.Rating >= 1 && tourLog.Rating <= 5; // Rating is between 1 and 5
+        }
+
 
         private void RefreshTourLogs()
         {

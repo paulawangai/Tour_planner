@@ -54,6 +54,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             InitializeCommands();
         }
 
+        public TourViewModel()
+        {
+        }
+
         private void LoadTours()
         {
             Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
@@ -77,7 +81,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 Description = "Description",
                 From = "Start Location",
                 To = "Destination",
-                TransportType = "Bike",  // Default values can be set here
+                TransportType = "Bike",  
                 TourDistance = 0,
                 EstimatedTime = TimeSpan.Zero,
                 RouteImage = "path_to_default_image.png"

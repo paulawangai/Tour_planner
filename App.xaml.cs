@@ -29,7 +29,7 @@ namespace Tour_planner
 
             // Inject the services into the view models
             var tourViewModel = new TourViewModel(tourService, tourLogService);
-            var tourLogViewModel = new TourLogViewModel(tourLogService);  // Assuming you might need to use it somewhere
+            var tourLogViewModel = new TourLogViewModel(tourLogService); 
 
             // Set up the main application window and assign the data context
             MainWindow mainWindow = new MainWindow

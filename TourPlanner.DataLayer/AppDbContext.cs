@@ -25,7 +25,7 @@ namespace Tour_planner.TourPlanner.DataLayer
                     .Build();
 
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                Console.WriteLine($"Connection string: {connectionString}"); // This will print the connection string
+                Console.WriteLine($"Connection string: {connectionString}"); 
                 if (string.IsNullOrEmpty(connectionString))
                 {
                     throw new InvalidOperationException("The connection string is null or empty.");

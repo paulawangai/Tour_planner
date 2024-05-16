@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 
 namespace Tour_planner
 {
@@ -19,9 +20,15 @@ namespace Tour_planner
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MainViewModel();
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void lstTours_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
