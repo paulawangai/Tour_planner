@@ -9,10 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20240515120243_InitialCreate.cs" />
+    <Compile Remove="Migrations\20240515120243_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\AppDbContextModelSnapshot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="TourPlanner.Tests\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapsui" Version="4.1.6" />
+    <PackageReference Include="Mapsui.Extensions" Version="4.1.6" />
+    <PackageReference Include="Mapsui.Nts" Version="4.1.6" />
+    <PackageReference Include="Mapsui.Rendering.Skia" Version="4.1.6" />
+    <PackageReference Include="Mapsui.Tiling" Version="4.1.6" />
+    <PackageReference Include="Mapsui.Wpf" Version="4.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
       <PrivateAssets>all</PrivateAssets>
@@ -21,7 +34,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
+    <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="2.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+    <PackageReference Include="OsmSharp" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>

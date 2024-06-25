@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tour_planner.TourPlanner.DataLayer;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 
@@ -13,16 +9,12 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
     {
         private readonly AppDbContext _context;
 
-        public TourLogService(string connectionString)
+        public TourLogService(AppDbContext context)
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseNpgsql(connectionString)
-                .Options;
-
-            _context = new AppDbContext(options);
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public List<TourLog> GetAllTourLogs()
+        public IEnumerable<TourLog> GetAllTourLogs()
         {
             return _context.TourLogs.ToList();
         }
@@ -33,9 +25,8 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             _context.SaveChanges();
         }
 
-        public void UpdateTourLog(TourLog tourLog)
+        public void Save()
         {
-            _context.TourLogs.Update(tourLog);
             _context.SaveChanges();
         }
 
@@ -45,5 +36,4 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             _context.SaveChanges();
         }
     }
-
 }

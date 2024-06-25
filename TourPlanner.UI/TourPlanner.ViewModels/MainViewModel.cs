@@ -1,46 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
+using System.Windows.Input;
+using Tour_planner.TourPlanner.DataLayer;
+using Microsoft.Extensions.DependencyInjection;
+using Tour_planner.TourPlanner.Commands;
+using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ViewModelBase
     {
-        private TourViewModel _tourViewModel;
+        private readonly AppDbContext _context;
+        private Tour _selectedTour;
 
-        public MainViewModel()
+        public ObservableCollection<Tour> Tours { get; set; }
+        public Tour SelectedTour
         {
-        }
-
-        public MainViewModel(TourService tourService, TourLogService tourLogService)
-        {
-            _tourViewModel = new TourViewModel(tourService, tourLogService);
-            // Initialize other view models or services 
-        }
-
-        public TourViewModel TourViewModel
-        {
-            get => _tourViewModel;
+            get => _selectedTour;
             set
             {
-                if (_tourViewModel != value)
-                {
-                    _tourViewModel = value;
-                    OnPropertyChanged(nameof(TourViewModel));
-                }
+                _selectedTour = value;
+                OnPropertyChanged();
+                (UpdateTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ICommand AddTourCommand { get; }
+        public ICommand UpdateTourCommand { get; }
+        public ICommand DeleteTourCommand { get; }
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        public MainViewModel(AppDbContext context)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            _context = context;
+
+            Tours = new ObservableCollection<Tour>(_context.Tours.ToList());
+
+            AddTourCommand = new RelayCommand(param => AddTour());
+            UpdateTourCommand = new RelayCommand(param => UpdateTour(), param => CanExecuteTourCommand());
+            DeleteTourCommand = new RelayCommand(param => DeleteTour(), param => CanExecuteTourCommand());
+        }
+
+        private void AddTour()
+        {
+            var newTour = new Tour
+            {
+                TourName = "New Tour",
+                Description = "Description of the new tour"
+            };
+            _context.Tours.Add(newTour);
+            _context.SaveChanges();
+            Tours.Add(newTour);
+        }
+
+        private void UpdateTour()
+        {
+            _context.SaveChanges();
+        }
+
+        private void DeleteTour()
+        {
+            if (SelectedTour != null)
+            {
+                _context.Tours.Remove(SelectedTour);
+                _context.SaveChanges();
+                Tours.Remove(SelectedTour);
+            }
+        }
+
+        private bool CanExecuteTourCommand()
+        {
+            return SelectedTour != null;
         }
     }
-
 }

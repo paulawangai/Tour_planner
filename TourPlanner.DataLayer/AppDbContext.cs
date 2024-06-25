@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Tour_planner.TourPlanner.UI.TourPlanner.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 
 namespace Tour_planner.TourPlanner.DataLayer
 {
@@ -19,18 +18,12 @@ namespace Tour_planner.TourPlanner.DataLayer
         {
             if (!optionsBuilder.IsConfigured)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                    .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../"))
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
                     .Build();
 
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                Console.WriteLine($"Connection string: {connectionString}"); 
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new InvalidOperationException("The connection string is null or empty.");
-                }
-
                 optionsBuilder.UseNpgsql(connectionString);
             }
         }

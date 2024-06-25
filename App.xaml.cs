@@ -1,43 +1,59 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// App.xaml.cs
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.IO;
 using System.Windows;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
+using Tour_planner.TourPlanner.DataLayer;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
+using Tour_planner.TourPlanner.UI.TourPlanner.Views;
+using System.Net.Http;
 
 namespace Tour_planner
 {
     public partial class App : Application
     {
-        public static IConfiguration Configuration { get; private set; }
+        public IConfiguration Configuration { get; private set; }
+        public IServiceProvider ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            // Initialize the configuration from the appsettings.json file
-            Configuration = new ConfigurationBuilder()
+            var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .Build();
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-            // Extract the connection string from the configuration
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            Configuration = builder.Build();
 
-            // Assume that the TourService and TourLogService require a connection string to initialize
-            var tourService = new TourService(connectionString);
-            var tourLogService = new TourLogService(connectionString);
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+            ServiceProvider = serviceCollection.BuildServiceProvider();
 
-            // Inject the services into the view models
-            var tourViewModel = new TourViewModel(tourService, tourLogService);
-            var tourLogViewModel = new TourLogViewModel(tourLogService); 
-
-            // Set up the main application window and assign the data context
-            MainWindow mainWindow = new MainWindow
+            using (var serviceScope = ServiceProvider.CreateScope())
             {
-                DataContext = tourViewModel  // Set DataContext to the TourViewModel
-            };
+                var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                context.Database.Migrate();
+            }
 
+            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddSingleton<MainWindow>();
+            services.AddSingleton<TourViewModel>();
+            services.AddSingleton<TourLogViewModel>();
+            services.AddTransient<TourService>();
+            services.AddTransient<TourLogService>();
+            services.AddHttpClient<OpenRouteService>();
+            services.AddTransient<RouteService>();
         }
     }
 }

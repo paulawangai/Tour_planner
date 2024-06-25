@@ -1,40 +1,82 @@
 ﻿<UserControl x:Class="Tour_planner.TourPlanner.UI.TourPlanner.Views.TourView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
-             mc:Ignorable="d" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodels="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.ViewModels"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
+             d:DataContext="{d:DesignInstance Type=viewmodels:TourViewModel}"
+             mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="650">
-
     <Grid Margin="10" Background="White">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Form for Adding and Updating Tour -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Margin="10">
+            <TextBlock Text="Add/Update Tour" FontWeight="Bold" FontSize="16" Margin="5"/>
+            <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="Tour Name:" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourName, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="Description:" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourDescription, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="From:" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourFrom, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="To:" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourTo, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="Transport Type:" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourTransportType, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="Distance (km):" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourDistance, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <TextBlock Text="Estimated Time (hrs):" VerticalAlignment="Center" Width="150"/>
+                    <TextBox Text="{Binding NewTourEstimatedTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                </StackPanel>
+                <Button Content="Add Tour" Command="{Binding AddTourCommand}" Margin="5" Width="150" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
 
         <!-- ListView for Tour Listing -->
-        <ListView ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour}" Grid.Row="0" Margin="5" d:ItemsSource="{d:SampleData ItemCount=5}">
+        <ListView ItemsSource="{Binding Tours}" SelectedItem="{Binding SelectedTour}" Grid.Row="1" Grid.Column="0" Margin="5">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Tour Name" DisplayMemberBinding="{Binding TourName}" Width="Auto"/>
-                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="Auto"/>
-                    <GridViewColumn Header="From" DisplayMemberBinding="{Binding From}" Width="Auto"/>
-                    <GridViewColumn Header="To" DisplayMemberBinding="{Binding To}" Width="Auto"/>
-                    <GridViewColumn Header="Transport Type" DisplayMemberBinding="{Binding TransportType}" Width="100"/>
+                    <GridViewColumn Header="Tour Name" DisplayMemberBinding="{Binding TourName}" Width="150"/>
+                    <GridViewColumn Header="Description" DisplayMemberBinding="{Binding Description}" Width="250"/>
+                    <GridViewColumn Header="From" DisplayMemberBinding="{Binding From}" Width="150"/>
+                    <GridViewColumn Header="To" DisplayMemberBinding="{Binding To}" Width="150"/>
+                    <GridViewColumn Header="Transport Type" DisplayMemberBinding="{Binding TransportType}" Width="150"/>
                     <GridViewColumn Header="Distance (km)" DisplayMemberBinding="{Binding TourDistance}" Width="90"/>
                     <GridViewColumn Header="Time (hrs)" DisplayMemberBinding="{Binding EstimatedTime}" Width="120"/>
-                    
                 </GridView>
             </ListView.View>
         </ListView>
 
         <!-- Buttons for Actions -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-            <Button Content="Add New Tour" Command="{Binding AddTourCommand}" Margin="5"/>
-            <Button Content="Save" Command="{Binding SaveTourCommand}" Margin="5"/>
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
             <Button Content="Update Selected Tour" Command="{Binding UpdateTourCommand}" Margin="5"/>
             <Button Content="Delete Selected Tour" Command="{Binding DeleteTourCommand}" Margin="5"/>
         </StackPanel>
+
+        <!-- MapControl for displaying the route -->
+        <mapsui:MapControl x:Name="mapControl" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="10"/>
     </Grid>
 </UserControl>
