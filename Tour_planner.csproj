@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.17" />
     <PackageReference Include="Mapsui" Version="4.1.6" />
     <PackageReference Include="Mapsui.Extensions" Version="4.1.6" />
     <PackageReference Include="Mapsui.Nts" Version="4.1.6" />
