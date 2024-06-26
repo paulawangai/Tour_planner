@@ -1,14 +1,20 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using Mapsui;
+using Mapsui.Layers;
+using Mapsui.Nts.Extensions;
+using Mapsui.Nts.Providers;
+using Mapsui.Tiling;
+using Mapsui.UI;
+using Mapsui.UI.Wpf;
+using NetTopologySuite.Geometries;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.Commands;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
-using Mapsui;
-using Mapsui.Layers;
-using Mapsui.Extensions;
-using Mapsui.UI.Wpf;
-using NetTopologySuite.Geometries;
-using Mapsui.Tiling;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
@@ -38,7 +44,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                     NewTourEstimatedTime = value.EstimatedTime;
 
                     // Display route on the map
-                    DisplayRouteOnMap(value.From, value.To);
+                     _ = DisplayRouteOnMap(value.From, value.To);
                 }
             }
         }
@@ -118,36 +124,62 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
         }
 
-        private async void DisplayRouteOnMap(string from, string to)
+       
+
+        private async Task DisplayRouteOnMap(string from, string to)
         {
-            var route = await _routeService.GetRouteAsync(from, to);
-            var coordinates = route["routes"][0]["geometry"]["coordinates"].ToObject<double[][]>();
-
-            var lineString = new LineString(coordinates.Select(coord => new Coordinate(coord[0], coord[1])).ToArray());
-
-            // Use Mapsui.Data.Feature to create your feature
-            var mapsuiFeature = new Feature
+            try
             {
-                Geometry = lineString
-            };
+                // Log the start of the route fetching process
+                Debug.WriteLine($"Fetching route from {from} to {to}");
 
-            var layer = new MemoryLayer
+                var route = await _routeService.GetRouteAsync(from, to);
+
+                // Log the API response
+                Debug.WriteLine($"Route API Response: {route}");
+
+                var coordinates = route["routes"][0]["geometry"]["coordinates"].ToObject<double[][]>();
+
+                // Log the parsed coordinates
+                Debug.WriteLine("Parsed Coordinates:");
+                foreach (var coord in coordinates)
+                {
+                    Debug.WriteLine($"[{coord[0]}, {coord[1]}]");
+                }
+
+                var lineString = new LineString(coordinates.Select(coord => new Coordinate(coord[0], coord[1])).ToArray());
+
+                var customFeature = new CustomFeature(lineString);
+
+                var layer = new MemoryLayer
+                {
+                    Name = "Route Layer",
+                    Features = new ObservableCollection<IFeature> { customFeature }
+                };
+
+                _mapControl.Map.Layers.Clear();
+                _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
+                _mapControl.Map.Layers.Add(layer);
+
+                var envelope = lineString.EnvelopeInternal;
+                var boundingBox = new MRect(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY);
+                _mapControl.Map.Home = n => n.ZoomToBox(boundingBox.Grow(1.1));
+                _mapControl.Refresh();
+
+                // Log success
+                Debug.WriteLine("Route displayed on map successfully.");
+            }
+            catch (Exception ex)
             {
-                Name = "Route Layer",
-                Features = new ObservableCollection<IFeature> { mapsuiFeature }
-            };
-
-            _mapControl.Map.Layers.Clear();
-            _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
-            _mapControl.Map.Layers.Add(layer);
-
-            var envelope = lineString.EnvelopeInternal;
-            _mapControl.Navigator.ZoomToBox(new MRect(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY));
+                // Log the error
+                Debug.WriteLine($"Error displaying route on map: {ex.Message}");
+            }
         }
 
 
 
-        private void AddTour(object parameter)
+
+    private void AddTour(object parameter)
         {
             if (ValidateTourDetails())
             {

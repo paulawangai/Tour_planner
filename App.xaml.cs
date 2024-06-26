@@ -1,5 +1,4 @@
-﻿// App.xaml.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -39,6 +38,9 @@ namespace Tour_planner
             }
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+            var tourViewModel = ServiceProvider.GetRequiredService<TourViewModel>();
+
+            mainWindow.DataContext = tourViewModel;
             mainWindow.Show();
         }
 
@@ -52,8 +54,12 @@ namespace Tour_planner
             services.AddSingleton<TourLogViewModel>();
             services.AddTransient<TourService>();
             services.AddTransient<TourLogService>();
-            services.AddHttpClient<OpenRouteService>();
-            services.AddTransient<RouteService>();
+            services.AddHttpClient<OpenRouteService>()
+                    .ConfigureHttpClient(client =>
+                    {
+                        client.BaseAddress = new Uri("https://api.openrouteservice.org/");
+                    });
+            services.AddSingleton<IConfiguration>(Configuration);
         }
     }
 }
