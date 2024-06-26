@@ -52,6 +52,8 @@
                     <TextBox Text="{Binding NewTourEstimatedTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                 </StackPanel>
                 <Button Content="Add Tour" Command="{Binding AddTourCommand}" Margin="5" Width="150" HorizontalAlignment="Center"/>
+                <Button Content="Update Route" Command="{Binding UpdateRouteCommand}" Margin="5" Width="150" HorizontalAlignment="Center"/>
+
             </StackPanel>
         </StackPanel>
 

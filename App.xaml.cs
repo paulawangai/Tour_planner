@@ -39,8 +39,11 @@ namespace Tour_planner
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             var tourViewModel = ServiceProvider.GetRequiredService<TourViewModel>();
+            var tourLogViewModel = ServiceProvider.GetRequiredService<TourLogViewModel>();
 
-            mainWindow.DataContext = tourViewModel;
+            mainWindow.ToursTab.DataContext = tourViewModel;
+            mainWindow.TourLogsTab.DataContext = tourLogViewModel;
+
             mainWindow.Show();
         }
 
@@ -54,6 +57,7 @@ namespace Tour_planner
             services.AddSingleton<TourLogViewModel>();
             services.AddTransient<TourService>();
             services.AddTransient<TourLogService>();
+            services.AddHttpClient<RouteService>();
             services.AddHttpClient<OpenRouteService>()
                     .ConfigureHttpClient(client =>
                     {

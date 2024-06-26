@@ -22,4 +22,25 @@ public class OpenRouteService
         var content = await response.Content.ReadAsStringAsync();
         return JObject.Parse(content);
     }
+
+    public async Task<JObject> GeocodeAsync(string location)
+    {
+        var response = await _httpClient.GetAsync($"https://api.openrouteservice.org/geocode/search?api_key={_apiKey}&text={location}");
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+        return JObject.Parse(content);
+    }
+
+    public async Task<(double Longitude, double Latitude)> GetCoordinatesAsync(string location)
+    {
+        var geocodeResult = await GeocodeAsync(location);
+        var coordinates = geocodeResult["features"]?[0]?["geometry"]?["coordinates"];
+        if (coordinates == null)
+        {
+            throw new Exception("Invalid geocode response format.");
+        }
+        return (coordinates[0].ToObject<double>(), coordinates[1].ToObject<double>());
+    }
+
 }

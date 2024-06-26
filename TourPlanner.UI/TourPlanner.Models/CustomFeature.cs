@@ -13,7 +13,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
         public MRect? Extent => Geometry?.EnvelopeInternal.ToMRect();
         public IDictionary<IStyle, object> RenderedGeometry { get; set; } = new Dictionary<IStyle, object>();
 
-        // Change Fields to implement IEnumerable<string>
         private readonly Dictionary<string, object> _fields = new Dictionary<string, object>();
 
         public IEnumerable<string> Fields => _fields.Keys;
@@ -37,7 +36,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
 
         public void Dispose()
         {
-            // Implement IDisposable if necessary
         }
 
         public void CoordinateVisitor(Action<double, double, CoordinateSetter> visit)
@@ -46,7 +44,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
 
             foreach (var coordinate in Geometry.Coordinates)
             {
-                visit(coordinate.X, coordinate.Y, (x, y) => {
+                visit(coordinate.X, coordinate.Y, (x, y) =>
+                {
                     coordinate.X = x;
                     coordinate.Y = y;
                 });

@@ -2,15 +2,15 @@
     x:Class="Tour_planner.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
+    xmlns:localViews="clr-namespace:Tour_planner.TourPlanner.UI.TourPlanner.Views"
     Title="Tour Planner" Height="1023" Width="1213">
     <Grid>
         <TabControl>
-            <TabItem Header="Tours">
-                <local:TourView x:Name="TourView" />
+            <TabItem Header="Tours" x:Name="ToursTab">
+                <localViews:TourView />
             </TabItem>
-            <TabItem Header="Tour Logs">
-                <local:TourLogView x:Name="TourLogView" />
+            <TabItem Header="Tour Logs" x:Name="TourLogsTab">
+                <localViews:TourLogView />
             </TabItem>
         </TabControl>
     </Grid>

@@ -8,6 +8,8 @@ using Mapsui;
 using Mapsui.Layers;
 using Mapsui.Nts.Extensions;
 using Mapsui.Nts.Providers;
+using Mapsui.Providers;
+using Mapsui.Styles;
 using Mapsui.Tiling;
 using Mapsui.UI;
 using Mapsui.UI.Wpf;
@@ -53,6 +55,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         public ICommand SaveTourCommand { get; }
         public ICommand UpdateTourCommand { get; }
         public ICommand DeleteTourCommand { get; }
+        public ICommand UpdateRouteCommand { get; }
 
         private string _newTourName;
         private string _newTourDescription;
@@ -113,6 +116,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 
             AddTourCommand = new RelayCommand(AddTour);
             SaveTourCommand = new RelayCommand(SaveTour);
+            UpdateRouteCommand = new RelayCommand(UpdateRoute);
             UpdateTourCommand = new RelayCommand(UpdateTour, CanExecuteTourCommand);
             DeleteTourCommand = new RelayCommand(DeleteTour, CanExecuteTourCommand);
         }
@@ -124,32 +128,56 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
         }
 
-       
+
 
         private async Task DisplayRouteOnMap(string from, string to)
         {
             try
             {
-                // Log the start of the route fetching process
-                Debug.WriteLine($"Fetching route from {from} to {to}");
+                if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
+                {
+                    Console.WriteLine("From or To locations are empty.");
+                    return;
+                }
 
-                var route = await _routeService.GetRouteAsync(from, to);
+                var fromCoordinates = await _routeService.GetCoordinatesAsync(from);
+                var toCoordinates = await _routeService.GetCoordinatesAsync(to);
 
-                // Log the API response
-                Debug.WriteLine($"Route API Response: {route}");
+                string start = $"{fromCoordinates.Longitude},{fromCoordinates.Latitude}";
+                string end = $"{toCoordinates.Longitude},{toCoordinates.Latitude}";
 
-                var coordinates = route["routes"][0]["geometry"]["coordinates"].ToObject<double[][]>();
+                Console.WriteLine($"Requesting route from {start} to {end}");
 
-                // Log the parsed coordinates
-                Debug.WriteLine("Parsed Coordinates:");
+                var route = await _routeService.GetRouteAsync(start, end);
+
+                var coordinates = route["features"]?[0]?["geometry"]?["coordinates"]?.ToObject<double[][]>();
+                var distance = route["features"]?[0]?["properties"]?["segments"]?[0]?["distance"]?.ToObject<double>();
+                var duration = route["features"]?[0]?["properties"]?["segments"]?[0]?["duration"]?.ToObject<double>();
+
+                if (coordinates == null || distance == null || duration == null)
+                {
+                    throw new Exception("Invalid route data received.");
+                }
+
+                Console.WriteLine("Route coordinates received:");
                 foreach (var coord in coordinates)
                 {
-                    Debug.WriteLine($"[{coord[0]}, {coord[1]}]");
+                    Console.WriteLine($"Longitude: {coord[0]}, Latitude: {coord[1]}");
                 }
 
                 var lineString = new LineString(coordinates.Select(coord => new Coordinate(coord[0], coord[1])).ToArray());
 
-                var customFeature = new CustomFeature(lineString);
+                var customFeature = new CustomFeature(lineString)
+                {
+                    Styles = { new VectorStyle
+            {
+                Line = new Pen
+                {
+                    Color = Mapsui.Styles.Color.Red,
+                    Width = 2
+                }
+            }}
+                };
 
                 var layer = new MemoryLayer
                 {
@@ -157,29 +185,42 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                     Features = new ObservableCollection<IFeature> { customFeature }
                 };
 
+                Console.WriteLine("Adding layers to the map control.");
+
                 _mapControl.Map.Layers.Clear();
                 _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
                 _mapControl.Map.Layers.Add(layer);
 
-                var envelope = lineString.EnvelopeInternal;
-                var boundingBox = new MRect(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY);
-                _mapControl.Map.Home = n => n.ZoomToBox(boundingBox.Grow(1.1));
+                var envelope = lineString.EnvelopeInternal.ToMRect();
+                _mapControl.Map.Home = n => n.ZoomToBox(envelope.Grow(1.1));
                 _mapControl.Refresh();
 
-                // Log success
-                Debug.WriteLine("Route displayed on map successfully.");
+                // Update the form fields
+                NewTourDistance = distance.Value / 1000; // Convert to kilometers
+                NewTourEstimatedTime = TimeSpan.FromSeconds(duration.Value);
+
+                Console.WriteLine("Route displayed on map successfully.");
             }
             catch (Exception ex)
             {
-                // Log the error
-                Debug.WriteLine($"Error displaying route on map: {ex.Message}");
+                Console.WriteLine($"Error displaying route on map: {ex.Message}");
             }
         }
 
 
 
 
-    private void AddTour(object parameter)
+        private async void UpdateRoute(object parameter)
+        {
+            if (!string.IsNullOrWhiteSpace(NewTourFrom) && !string.IsNullOrWhiteSpace(NewTourTo))
+            {
+                await DisplayRouteOnMap(NewTourFrom, NewTourTo);
+            }
+        }
+
+
+
+        private void AddTour(object parameter)
         {
             if (ValidateTourDetails())
             {

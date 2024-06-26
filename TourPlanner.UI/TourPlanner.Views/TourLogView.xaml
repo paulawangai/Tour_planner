@@ -20,36 +20,36 @@
                 <StackPanel Orientation="Vertical" Margin="0,10,0,0">
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Date/Time:" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="DateTimeTextBox" Text="{Binding EditTourLogDateTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogDateTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Comment:" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="CommentTextBox" Text="{Binding EditTourLogComment, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogComment, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Difficulty:" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="DifficultyTextBox" Text="{Binding EditTourLogDifficulty, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogDifficulty, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Total Distance (km):" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="TotalDistanceTextBox" Text="{Binding EditTourLogTotalDistance, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogTotalDistance, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Total Time (hrs):" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="TotalTimeTextBox" Text="{Binding EditTourLogTotalTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogTotalTime, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Rating:" VerticalAlignment="Center" Width="150"/>
-                        <TextBox Name="RatingTextBox" Text="{Binding EditTourLogRating, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
+                        <TextBox Text="{Binding EditTourLogRating, UpdateSourceTrigger=PropertyChanged}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Tour:" VerticalAlignment="Center" Width="150"/>
-                        <ComboBox Name="TourComboBox" ItemsSource="{Binding Tours}" DisplayMemberPath="TourName" SelectedItem="{Binding EditTour}" Width="400"/>
+                        <ComboBox ItemsSource="{Binding Tours}" DisplayMemberPath="TourName" SelectedItem="{Binding EditTour}" Width="400"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                        <Button Name="AddTourLogButton" Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="5" Width="150"/>
-                        <Button Name="UpdateTourLogButton" Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="5" Width="150"/>
-                        <Button Name="DeleteTourLogButton" Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="5" Width="150"/>
+                        <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="5" Width="150"/>
+                        <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="5" Width="150"/>
+                        <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="5" Width="150"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
