@@ -27,5 +27,16 @@ namespace Tour_planner.TourPlanner.DataLayer
                 optionsBuilder.UseNpgsql(connectionString);
             }
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Tour>()
+                .Property(t => t.Popularity)
+                .HasDefaultValue(0);
+
+            modelBuilder.Entity<Tour>()
+                .Property(t => t.ChildFriendliness)
+                .HasDefaultValue(0.0);
+        }
     }
 }

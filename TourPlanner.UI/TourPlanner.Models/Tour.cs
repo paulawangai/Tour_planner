@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
 {
@@ -20,17 +14,19 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
         private double tourDistance;
         private TimeSpan estimatedTime;
         private string routeImage;
+        private int popularity;
+        private double childFriendliness;
 
         [Key]
         public int TourId
-        { 
-            get  => tourId;
+        {
+            get => tourId;
             set
             {
                 if (tourId != value)
                 {
                     tourId = value;
-                    OnPropertyChanged(nameof(tourId));
+                    OnPropertyChanged(nameof(TourId));
                 }
             }
         }
@@ -82,6 +78,18 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
             set { routeImage = value; OnPropertyChanged(nameof(RouteImage)); }
         }
 
+        public int Popularity
+        {
+            get => popularity;
+            set { popularity = value; OnPropertyChanged(nameof(Popularity)); }
+        }
+
+        public double ChildFriendliness
+        {
+            get => childFriendliness;
+            set { childFriendliness = value; OnPropertyChanged(nameof(ChildFriendliness)); }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -89,5 +97,4 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
 }

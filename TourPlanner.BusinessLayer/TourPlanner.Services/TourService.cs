@@ -40,5 +40,15 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             _context.Tours.Remove(tour);
             _context.SaveChanges();
         }
+
+        public IEnumerable<Tour> SearchTours(string searchText)
+        {
+            return _context.Tours
+                .Where(t => t.TourName.Contains(searchText) ||
+                            t.Description.Contains(searchText) ||
+                            t.Popularity.ToString().Contains(searchText) ||
+                            t.ChildFriendliness.ToString().Contains(searchText))
+                .ToList();
+        }
     }
 }

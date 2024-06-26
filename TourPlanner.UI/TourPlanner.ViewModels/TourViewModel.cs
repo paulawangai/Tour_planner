@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.Layout;
+using iText.Layout.Element;
 using Mapsui;
 using Mapsui.Layers;
 using Mapsui.Nts.Extensions;
@@ -13,6 +19,7 @@ using Mapsui.Styles;
 using Mapsui.Tiling;
 using Mapsui.UI;
 using Mapsui.UI.Wpf;
+using Microsoft.Win32;
 using NetTopologySuite.Geometries;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.Commands;
@@ -44,9 +51,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                     NewTourTransportType = value.TransportType;
                     NewTourDistance = value.TourDistance;
                     NewTourEstimatedTime = value.EstimatedTime;
+                    NewTourPopularity = value.Popularity;
+                    NewTourChildFriendliness = value.ChildFriendliness;
+
 
                     // Display route on the map
-                     _ = DisplayRouteOnMap(value.From, value.To);
+                    _ = DisplayRouteOnMap(value.From, value.To);
                 }
             }
         }
@@ -56,6 +66,9 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         public ICommand UpdateTourCommand { get; }
         public ICommand DeleteTourCommand { get; }
         public ICommand UpdateRouteCommand { get; }
+        public ICommand ExportToursCommand { get; }
+        public ICommand ImportToursCommand { get; }
+        public ICommand SearchCommand { get; }
 
         private string _newTourName;
         private string _newTourDescription;
@@ -64,6 +77,9 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         private string _newTourTransportType;
         private double _newTourDistance;
         private TimeSpan _newTourEstimatedTime;
+        private int _newTourPopularity;
+        private double _newTourChildFriendliness;
+        private string _searchText;
 
         public string NewTourName
         {
@@ -107,6 +123,24 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             set => SetProperty(ref _newTourEstimatedTime, value);
         }
 
+        public int NewTourPopularity
+        {
+            get => _newTourPopularity;
+            set => SetProperty(ref _newTourPopularity, value);
+        }
+
+        public double NewTourChildFriendliness
+        {
+            get => _newTourChildFriendliness;
+            set => SetProperty(ref _newTourChildFriendliness, value);
+        }
+
+        public string SearchText
+        {
+            get => _searchText;
+            set => SetProperty(ref _searchText, value);
+        }
+
         public TourViewModel(TourService tourService, OpenRouteService routeService)
         {
             _tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
@@ -119,6 +153,9 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             UpdateRouteCommand = new RelayCommand(UpdateRoute);
             UpdateTourCommand = new RelayCommand(UpdateTour, CanExecuteTourCommand);
             DeleteTourCommand = new RelayCommand(DeleteTour, CanExecuteTourCommand);
+            ExportToursCommand = new RelayCommand(ExportTours);
+            ImportToursCommand = new RelayCommand(ImportTours);
+            SearchCommand = new RelayCommand(SearchTours);
         }
 
         public void Initialize(MapControl mapControl)
@@ -127,8 +164,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             _mapControl.Map = new Map();
             _mapControl.Map.Layers.Add(OpenStreetMap.CreateTileLayer());
         }
-
-
 
         private async Task DisplayRouteOnMap(string from, string to)
         {
@@ -170,13 +205,13 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 var customFeature = new CustomFeature(lineString)
                 {
                     Styles = { new VectorStyle
-            {
-                Line = new Pen
-                {
-                    Color = Mapsui.Styles.Color.Red,
-                    Width = 2
-                }
-            }}
+                    {
+                        Line = new Pen
+                        {
+                            Color = Mapsui.Styles.Color.Red,
+                            Width = 2
+                        }
+                    }}
                 };
 
                 var layer = new MemoryLayer
@@ -207,9 +242,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             }
         }
 
-
-
-
         private async void UpdateRoute(object parameter)
         {
             if (!string.IsNullOrWhiteSpace(NewTourFrom) && !string.IsNullOrWhiteSpace(NewTourTo))
@@ -217,8 +249,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 await DisplayRouteOnMap(NewTourFrom, NewTourTo);
             }
         }
-
-
 
         private void AddTour(object parameter)
         {
@@ -233,7 +263,9 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                     TransportType = NewTourTransportType,
                     TourDistance = NewTourDistance,
                     EstimatedTime = NewTourEstimatedTime,
-                    RouteImage = "default_image.png" // Provide a default value or set appropriately
+                    RouteImage = "default_image.png",
+                    Popularity = NewTourPopularity,
+                    ChildFriendliness = NewTourChildFriendliness
                 };
 
                 _tourService.AddTour(newTour);
@@ -265,6 +297,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 SelectedTour.TransportType = NewTourTransportType;
                 SelectedTour.TourDistance = NewTourDistance;
                 SelectedTour.EstimatedTime = NewTourEstimatedTime;
+                SelectedTour.Popularity = NewTourPopularity;
+                SelectedTour.ChildFriendliness = NewTourChildFriendliness;
 
                 _tourService.Save();
                 // Refresh the list
@@ -280,6 +314,124 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 Tours.Remove(SelectedTour);
                 ClearFormFields();
             }
+        }
+
+        private void ExportTours(object parameter)
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "PDF Files|*.pdf",
+                Title = "Export Tours to PDF"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var filePath = saveFileDialog.FileName;
+                using (var writer = new PdfWriter(filePath))
+                {
+                    var pdf = new PdfDocument(writer);
+                    var document = new Document(pdf);
+
+                    document.Add(new Paragraph("Tour List").SetFontSize(20).SetBold());
+
+                    foreach (var tour in Tours)
+                    {
+                        document.Add(new Paragraph($"Tour Name: {tour.TourName}"));
+                        document.Add(new Paragraph($"Description: {tour.Description}"));
+                        document.Add(new Paragraph($"From: {tour.From}"));
+                        document.Add(new Paragraph($"To: {tour.To}"));
+                        document.Add(new Paragraph($"Transport Type: {tour.TransportType}"));
+                        document.Add(new Paragraph($"Distance (km): {tour.TourDistance}"));
+                        document.Add(new Paragraph($"Estimated Time (hrs): {tour.EstimatedTime}"));
+                        document.Add(new Paragraph($"------------------------------------------------"));
+                    }
+
+                    document.Close();
+                }
+            }
+        }
+
+        private void ImportTours(object parameter)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "PDF Files|*.pdf",
+                Title = "Import Tours from PDF"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var filePath = openFileDialog.FileName;
+                using (var reader = new PdfReader(filePath))
+                {
+                    var pdf = new PdfDocument(reader);
+                    var strategy = new SimpleTextExtractionStrategy();
+                    var extractedText = string.Empty;
+
+                    for (int page = 1; page <= pdf.GetNumberOfPages(); page++)
+                    {
+                        extractedText += PdfTextExtractor.GetTextFromPage(pdf.GetPage(page), strategy);
+                    }
+
+                    var tours = ParseToursFromText(extractedText);
+                    foreach (var tour in tours)
+                    {
+                        _tourService.AddTour(tour);
+                        Tours.Add(tour);
+                    }
+                }
+            }
+        }
+
+        private List<Tour> ParseToursFromText(string text)
+        {
+            var tours = new List<Tour>();
+            var lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            Tour currentTour = null;
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("Tour Name:"))
+                {
+                    if (currentTour != null)
+                    {
+                        tours.Add(currentTour);
+                    }
+                    currentTour = new Tour();
+                    currentTour.TourName = line.Replace("Tour Name:", "").Trim();
+                }
+                else if (line.StartsWith("Description:") && currentTour != null)
+                {
+                    currentTour.Description = line.Replace("Description:", "").Trim();
+                }
+                else if (line.StartsWith("From:") && currentTour != null)
+                {
+                    currentTour.From = line.Replace("From:", "").Trim();
+                }
+                else if (line.StartsWith("To:") && currentTour != null)
+                {
+                    currentTour.To = line.Replace("To:", "").Trim();
+                }
+                else if (line.StartsWith("Transport Type:") && currentTour != null)
+                {
+                    currentTour.TransportType = line.Replace("Transport Type:", "").Trim();
+                }
+                else if (line.StartsWith("Distance (km):") && currentTour != null)
+                {
+                    currentTour.TourDistance = double.Parse(line.Replace("Distance (km):", "").Trim());
+                }
+                else if (line.StartsWith("Estimated Time (hrs):") && currentTour != null)
+                {
+                    currentTour.EstimatedTime = TimeSpan.Parse(line.Replace("Estimated Time (hrs):", "").Trim());
+                }
+            }
+
+            if (currentTour != null)
+            {
+                tours.Add(currentTour);
+            }
+
+            return tours;
         }
 
         private bool CanExecuteTourCommand(object parameter)
@@ -303,6 +455,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             NewTourTransportType = string.Empty;
             NewTourDistance = 0;
             NewTourEstimatedTime = TimeSpan.Zero;
+            NewTourPopularity = 0;
+            NewTourChildFriendliness = 0.0;
         }
 
         private void RefreshTours()
@@ -310,6 +464,25 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             Tours.Clear();
             var updatedTours = _tourService.GetAllTours();
             foreach (var tour in updatedTours)
+            {
+                Tours.Add(tour);
+            }
+        }
+
+        private void SearchTours(object parameter)
+        {
+            var searchText = SearchText?.ToLower() ?? string.Empty;
+            var searchedTours = _tourService.GetAllTours().Where(t =>
+                t.TourName.ToLower().Contains(searchText) ||
+                t.Description.ToLower().Contains(searchText) ||
+                t.From.ToLower().Contains(searchText) ||
+                t.To.ToLower().Contains(searchText) ||
+                t.TransportType.ToLower().Contains(searchText) ||
+                t.Popularity.ToString().Contains(searchText) ||
+                t.ChildFriendliness.ToString().Contains(searchText)).ToList();
+
+            Tours.Clear();
+            foreach (var tour in searchedTours)
             {
                 Tours.Add(tour);
             }
