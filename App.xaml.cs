@@ -50,6 +50,7 @@ namespace Tour_planner
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainViewModel>();
             services.AddSingleton<TourViewModel>();
             services.AddSingleton<TourLogViewModel>();
             services.AddTransient<TourService>();
@@ -60,6 +61,8 @@ namespace Tour_planner
                         client.BaseAddress = new Uri("https://api.openrouteservice.org/");
                     });
             services.AddSingleton<IConfiguration>(Configuration);
+            services.AddTransient<RouteService>();
+            services.AddTransient<TourReportService>();
         }
     }
 }

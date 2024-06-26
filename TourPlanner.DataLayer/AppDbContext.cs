@@ -14,6 +14,15 @@ namespace Tour_planner.TourPlanner.DataLayer
         public DbSet<Tour> Tours { get; set; }
         public DbSet<TourLog> TourLogs { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            modelBuilder.Entity<Tour>()
+                .HasMany(t => t.TourLogs)
+                .WithOne()
+                .HasForeignKey(tl => tl.TourId);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

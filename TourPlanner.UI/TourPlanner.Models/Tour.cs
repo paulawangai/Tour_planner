@@ -82,6 +82,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
             set { routeImage = value; OnPropertyChanged(nameof(RouteImage)); }
         }
 
+        public ICollection<TourLog> TourLogs { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)

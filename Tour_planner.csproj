@@ -42,6 +42,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     <PackageReference Include="OsmSharp" Version="6.2.0" />
+    <PackageReference Include="PDFsharp" Version="6.1.0" />
+    <!--<PackageReference Include="PDFsharp-MigraDoc" Version="6.1.0" />-->
+    <!--<PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.1.0" />-->
+    <PackageReference Include="PDFsharp-MigraDoc-WPF" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>

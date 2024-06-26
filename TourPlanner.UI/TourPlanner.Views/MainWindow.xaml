@@ -13,5 +13,7 @@
                 <local:TourLogView x:Name="TourLogView" />
             </TabItem>
         </TabControl>
+        <Button Command="{Binding GenerateTourReportCommand}" Content="Generate Tour Report"/>
+        <Button Command="{Binding GenerateSummaryReportCommand}" Content="Generate Summary Report"/>
     </Grid>
 </Window>
