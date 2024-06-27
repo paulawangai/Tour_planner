@@ -9,17 +9,20 @@ using Tour_planner.TourPlanner.DataLayer;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 using Tour_planner.TourPlanner.UI.TourPlanner.Views;
 using System.Net.Http;
+using log4net;
+using log4net.Config;
 
-namespace Tour_planner
-{
-    public partial class App : Application
-    {
+namespace Tour_planner {
+    public partial class App : Application {
         public IConfiguration Configuration { get; private set; }
         public IServiceProvider ServiceProvider { get; private set; }
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
+        protected override void OnStartup(StartupEventArgs e) {
             base.OnStartup(e);
+
+            // Initialize log4net
+            var logRepository = LogManager.GetRepository(System.Reflection.Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -31,8 +34,7 @@ namespace Tour_planner
             ConfigureServices(serviceCollection);
             ServiceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var serviceScope = ServiceProvider.CreateScope())
-            {
+            using (var serviceScope = ServiceProvider.CreateScope()) {
                 var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
                 context.Database.Migrate();
             }
@@ -47,8 +49,7 @@ namespace Tour_planner
             mainWindow.Show();
         }
 
-        private void ConfigureServices(IServiceCollection services)
-        {
+        private void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -61,8 +62,7 @@ namespace Tour_planner
             services.AddTransient<TourReportService>();
             services.AddHttpClient<RouteService>();
             services.AddHttpClient<OpenRouteService>()
-                    .ConfigureHttpClient(client =>
-                    {
+                    .ConfigureHttpClient(client => {
                         client.BaseAddress = new Uri("https://api.openrouteservice.org/");
                     });
             services.AddSingleton<IConfiguration>(Configuration);
