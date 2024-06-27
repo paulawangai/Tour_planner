@@ -53,10 +53,12 @@ namespace Tour_planner
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainViewModel>();
             services.AddSingleton<TourViewModel>();
             services.AddSingleton<TourLogViewModel>();
             services.AddTransient<TourService>();
             services.AddTransient<TourLogService>();
+            services.AddTransient<TourReportService>();
             services.AddHttpClient<RouteService>();
             services.AddHttpClient<OpenRouteService>()
                     .ConfigureHttpClient(client =>

@@ -16,6 +16,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
         private string routeImage;
         private int popularity;
         private double childFriendliness;
+        private ICollection<TourLog> tourLogs;
 
         [Key]
         public int TourId
@@ -88,6 +89,16 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Models
         {
             get => childFriendliness;
             set { childFriendliness = value; OnPropertyChanged(nameof(ChildFriendliness)); }
+        }
+
+        public ICollection<TourLog> TourLogs
+        {
+            get => tourLogs;
+            set
+            {
+                tourLogs = value;
+                OnPropertyChanged(nameof(TourLogs));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

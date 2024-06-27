@@ -2,16 +2,25 @@
 using System.Linq;
 using Tour_planner.TourPlanner.DataLayer;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
+using log4net;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
 {
     public class TourService
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(TourService));
+
         private readonly AppDbContext _context;
 
-        public TourService(AppDbContext context)
+        private readonly TourReportService _reportService;
+
+
+        public TourService(AppDbContext context, TourReportService reportService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _reportService = reportService ?? throw new ArgumentNullException(nameof(reportService));
         }
 
         public IEnumerable<Tour> GetAllTours()
@@ -49,6 +58,25 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
                             t.Popularity.ToString().Contains(searchText) ||
                             t.ChildFriendliness.ToString().Contains(searchText))
                 .ToList();
+        }
+
+        
+
+        public async Task GenerateTourReport(int tourId, string outputPath)
+        {
+            log.Debug($"Generating report for tour ID: {tourId}");
+            var tour = GetTourById(tourId);
+            var tourLogs = _context.TourLogs.Where(log => log.TourId == tourId).ToList();
+            _reportService.GenerateTourReport(tour, tourLogs, outputPath);
+            log.Info($"Report generated for tour ID: {tourId} at {outputPath}");
+        }
+
+        public async Task GenerateSummaryReport(string outputPath)
+        {
+            log.Debug("Generating summary report.");
+            var tours = GetAllTours().ToList();
+            _reportService.GenerateSummaryReport(tours, outputPath);
+            log.Info($"Summary report generated at {outputPath}");
         }
     }
 }

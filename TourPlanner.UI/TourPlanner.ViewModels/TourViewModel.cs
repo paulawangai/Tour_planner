@@ -32,6 +32,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         private readonly TourService _tourService;
         private readonly OpenRouteService _routeService;
         private MapControl _mapControl;
+        private readonly TourReportService _tourReportService;
+
 
         public ObservableCollection<Tour> Tours { get; set; }
 
@@ -69,6 +71,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         public ICommand ExportToursCommand { get; }
         public ICommand ImportToursCommand { get; }
         public ICommand SearchCommand { get; }
+        public ICommand GenerateTourReportCommand { get; }
+        public ICommand GenerateSummaryReportCommand { get; }
 
         private string _newTourName;
         private string _newTourDescription;
@@ -141,10 +145,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             set => SetProperty(ref _searchText, value);
         }
 
-        public TourViewModel(TourService tourService, OpenRouteService routeService)
+        public TourViewModel(TourService tourService, OpenRouteService routeService, TourReportService tourReportService)
         {
             _tourService = tourService ?? throw new ArgumentNullException(nameof(tourService));
             _routeService = routeService ?? throw new ArgumentNullException(nameof(routeService));
+            _tourReportService = tourReportService ?? throw new ArgumentNullException(nameof(tourReportService));
+
 
             Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
 
@@ -156,6 +162,8 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             ExportToursCommand = new RelayCommand(ExportTours);
             ImportToursCommand = new RelayCommand(ImportTours);
             SearchCommand = new RelayCommand(SearchTours);
+            GenerateTourReportCommand = new RelayCommand(GenerateTourReport);
+            GenerateSummaryReportCommand = new RelayCommand(GenerateSummaryReport);
         }
 
         public void Initialize(MapControl mapControl)
@@ -486,6 +494,39 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             {
                 Tours.Add(tour);
             }
+        }
+
+        private bool CanGenerateTourReport(object parameter)
+        {
+            return SelectedTour != null;
+        }
+
+        private void GenerateTourReport(object parameter)
+        {
+            var tourLogs = SelectedTour.TourLogs.ToList();
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string outputPath = Path.Combine(desktopPath, "TourReport.pdf");
+
+            _tourReportService.GenerateTourReport(SelectedTour, tourLogs, outputPath);
+
+            // Optionally, display a message to the user indicating success
+            System.Windows.MessageBox.Show("Tour report generated successfully!", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+
+        private bool CanGenerateSummaryReport(object parameter)
+        {
+            return Tours.Any();
+        }
+
+        private void GenerateSummaryReport(object parameter)
+        {
+            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string outputPath = Path.Combine(desktopPath, "SummaryReport.pdf");
+
+            _tourReportService.GenerateSummaryReport(Tours.ToList(), outputPath);
+
+            // Optionally, display a message to the user indicating success
+            System.Windows.MessageBox.Show("Summary report generated successfully!", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 }

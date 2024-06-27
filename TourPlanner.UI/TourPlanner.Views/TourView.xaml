@@ -66,9 +66,14 @@
                     <TextBlock Text="Child Friendliness:" VerticalAlignment="Center" Width="150"/>
                     <TextBox Text="{Binding NewTourChildFriendliness, UpdateSourceTrigger=PropertyChanged}" Width="400" IsReadOnly="True"/>
                 </StackPanel>
-                <Button Content="Add Tour" Command="{Binding AddTourCommand}" Margin="5" Width="150" HorizontalAlignment="Center"/>
-                <Button Content="Update Route" Command="{Binding UpdateRouteCommand}" Margin="5" Width="150" HorizontalAlignment="Center"/>
-                
+                <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+
+                <Button Content="Add Tour" Command="{Binding AddTourCommand}" Margin="5" />
+                <Button Content="Update Route" Command="{Binding UpdateRouteCommand}" Margin="5" />
+                <Button Content="Update Selected Tour" Command="{Binding UpdateTourCommand}" Margin="5"/>
+                <Button Content="Delete Selected Tour" Command="{Binding DeleteTourCommand}" Margin="5"/>
+                </StackPanel>
+
 
             </StackPanel>
         </StackPanel>
@@ -92,8 +97,8 @@
 
         <!-- Buttons for Actions -->
         <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-            <Button Content="Update Selected Tour" Command="{Binding UpdateTourCommand}" Margin="5"/>
-            <Button Content="Delete Selected Tour" Command="{Binding DeleteTourCommand}" Margin="5"/>
+            <Button Content="Generate Tour Report" Command="{Binding GenerateTourReportCommand}" Margin="5"/>
+            <Button Content="Generate Summary Report" Command="{Binding GenerateSummaryReportCommand}" Margin="5"/>
             <Button Content="Export Tours" Command="{Binding ExportToursCommand}" Margin="5"/>
             <Button Content="Import Tours" Command="{Binding ImportToursCommand}" Margin="5"/>
 
