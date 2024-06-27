@@ -5,13 +5,14 @@ using PdfSharp.Pdf;
 using System.Collections.Generic;
 using System.Linq;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
+using log4net;
 
-namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
-{
-    public class TourReportService
-    {
-        public void GenerateTourReport(Tour tour, List<TourLog> tourLogs, string outputPath)
-        {
+namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services {
+    public class TourReportService {
+        private static readonly ILog log = LogManager.GetLogger(typeof(TourReportService));
+
+        public void GenerateTourReport(Tour tour, List<TourLog> tourLogs, string outputPath) {
+            log.Debug($"Generating tour report for tour ID: {tour.TourId}");
             Document document = new Document();
             Section section = document.AddSection();
 
@@ -35,8 +36,7 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             logsTitle.Format.Font.Bold = true;
             logsTitle.AddText("Tour Logs");
 
-            foreach (var log in tourLogs)
-            {
+            foreach (var log in tourLogs) {
                 section.AddParagraph($"Date/Time: {log.DateTime}");
                 section.AddParagraph($"Comment: {log.Comment}");
                 section.AddParagraph($"Difficulty: {log.Difficulty}");
@@ -46,16 +46,17 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
                 section.AddParagraph(new string('-', 50));
             }
 
-            PdfDocumentRenderer renderer = new PdfDocumentRenderer(true)
-            {
+            PdfDocumentRenderer renderer = new PdfDocumentRenderer(true) {
                 Document = document
             };
             renderer.RenderDocument();
             renderer.PdfDocument.Save(outputPath);
+
+            log.Info($"Tour report generated for tour ID: {tour.TourId} at {outputPath}");
         }
 
-        public void GenerateSummaryReport(List<Tour> tours, string outputPath)
-        {
+        public void GenerateSummaryReport(List<Tour> tours, string outputPath) {
+            log.Debug("Generating summary report");
             Document document = new Document();
             Section section = document.AddSection();
 
@@ -90,11 +91,9 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             row.Cells[2].AddParagraph("Average Time");
             row.Cells[3].AddParagraph("Average Rating");
 
-            foreach (var tour in tours)
-            {
+            foreach (var tour in tours) {
                 var tourLogs = tour.TourLogs;
-                if (tourLogs != null && tourLogs.Count > 0)
-                {
+                if (tourLogs != null && tourLogs.Count > 0) {
                     var averageDistance = tourLogs.Average(log => log.TotalDistance);
                     var averageTime = TimeSpan.FromTicks((long)tourLogs.Average(log => log.TotalTime.Ticks));
                     var averageRating = tourLogs.Average(log => log.Rating);
@@ -107,12 +106,13 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
                 }
             }
 
-            PdfDocumentRenderer renderer = new PdfDocumentRenderer(true)
-            {
+            PdfDocumentRenderer renderer = new PdfDocumentRenderer(true) {
                 Document = document
             };
             renderer.RenderDocument();
             renderer.PdfDocument.Save(outputPath);
+
+            log.Info($"Summary report generated at {outputPath}");
         }
     }
 }
