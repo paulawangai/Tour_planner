@@ -1,71 +1,74 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Windows;
-using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
+using log4net;
+using Microsoft.EntityFrameworkCore;
 using Tour_planner.TourPlanner.DataLayer;
+using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 using Tour_planner.TourPlanner.UI.TourPlanner.Views;
-using System.Net.Http;
-using log4net;
-using log4net.Config;
 
 namespace Tour_planner {
     public partial class App : Application {
-        public IConfiguration Configuration { get; private set; }
-        public IServiceProvider ServiceProvider { get; private set; }
+
+        private static readonly ILog log = LogManager.GetLogger(typeof(App));
+        private static IServiceProvider _serviceProvider;
+        private static IConfiguration _configuration;
+
+        public static IServiceProvider ServiceProvider => _serviceProvider;
+        public static IConfiguration Configuration => _configuration;
 
         protected override void OnStartup(StartupEventArgs e) {
             base.OnStartup(e);
 
-            // Initialize log4net
-            var logRepository = LogManager.GetRepository(System.Reflection.Assembly.GetEntryAssembly());
-            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            log4net.Config.XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+
+            log.Info("Application started");
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            Configuration = builder.Build();
+            _configuration = builder.Build();
 
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            var services = new ServiceCollection();
+            ConfigureServices(services);
 
-            using (var serviceScope = ServiceProvider.CreateScope()) {
-                var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-                context.Database.Migrate();
-            }
+            _serviceProvider = services.BuildServiceProvider();
 
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-            var tourViewModel = ServiceProvider.GetRequiredService<TourViewModel>();
-            var tourLogViewModel = ServiceProvider.GetRequiredService<TourLogViewModel>();
-
-            mainWindow.ToursTab.DataContext = tourViewModel;
-            mainWindow.TourLogsTab.DataContext = tourLogViewModel;
-
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
 
         private void ConfigureServices(IServiceCollection services) {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            // Register configuration
+            services.AddSingleton<IConfiguration>(_configuration);
 
-            services.AddSingleton<MainWindow>();
-            services.AddSingleton<MainViewModel>();
-            services.AddSingleton<TourViewModel>();
-            services.AddSingleton<TourLogViewModel>();
-            services.AddTransient<TourService>();
-            services.AddTransient<TourLogService>();
-            services.AddTransient<TourReportService>();
-            services.AddHttpClient<RouteService>();
-            services.AddHttpClient<OpenRouteService>()
-                    .ConfigureHttpClient(client => {
-                        client.BaseAddress = new Uri("https://api.openrouteservice.org/");
-                    });
-            services.AddSingleton<IConfiguration>(Configuration);
+            // Register DbContext
+            services.AddDbContext<AppDbContext>((serviceProvider, options) => {
+                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            // Register HttpClient
+            services.AddHttpClient();
+
+            // Register your services
+            services.AddScoped<OpenRouteService>();
+            services.AddScoped<TourService>();
+            services.AddScoped<TourLogService>();
+            services.AddScoped<TourReportService>();
+
+            // Register your ViewModels
+            services.AddTransient<TourViewModel>();
+            services.AddTransient<TourLogViewModel>();
+
+            // Register MainWindow
+            services.AddTransient<MainWindow>();
         }
     }
 }

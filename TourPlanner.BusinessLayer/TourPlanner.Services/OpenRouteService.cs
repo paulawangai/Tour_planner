@@ -1,22 +1,28 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using log4net;
 
 public class OpenRouteService {
+
     private static readonly ILog log = LogManager.GetLogger(typeof(OpenRouteService));
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly string _baseUrl = "https://api.openrouteservice.org";
 
     public OpenRouteService(HttpClient httpClient, IConfiguration configuration) {
         _httpClient = httpClient;
         _apiKey = configuration["OpenRouteService:ApiKey"];
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
     }
 
-    public async Task<JObject> GetRouteAsync(string start, string end) {
-        log.Debug($"Requesting route from {start} to {end}");
-        var response = await _httpClient.GetAsync($"https://api.openrouteservice.org/v2/directions/driving-car?api_key={_apiKey}&start={start}&end={end}");
+    public async Task<JObject> GetRouteAsync(string start, string end, string profile = "driving-car") {
+        log.Debug($"Requesting route from {start} to {end} using profile {profile}");
+        var response = await _httpClient.GetAsync($"{_baseUrl}/v2/directions/{profile}?api_key={_apiKey}&start={start}&end={end}");
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
@@ -24,9 +30,20 @@ public class OpenRouteService {
         return JObject.Parse(content);
     }
 
+    public async Task<JObject> PostRouteAsync(JArray coordinates, string profile = "driving-car") {
+        log.Debug($"Requesting route for coordinates using profile {profile}");
+        var content = new StringContent(new JObject { ["coordinates"] = coordinates }.ToString(), System.Text.Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync($"{_baseUrl}/v2/directions/{profile}", content);
+        response.EnsureSuccessStatusCode();
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+        log.Info($"Route retrieved for provided coordinates");
+        return JObject.Parse(responseContent);
+    }
+
     public async Task<JObject> GeocodeAsync(string location) {
         log.Debug($"Geocoding location: {location}");
-        var response = await _httpClient.GetAsync($"https://api.openrouteservice.org/geocode/search?api_key={_apiKey}&text={location}");
+        var response = await _httpClient.GetAsync($"{_baseUrl}/geocode/search?api_key={_apiKey}&text={location}");
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();

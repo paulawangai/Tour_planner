@@ -1,255 +1,135 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
-using Tour_planner.TourPlanner.Commands;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
+using Tour_planner.TourPlanner.Commands;
+using System.Linq;
+using log4net;
 
-public class TourLogViewModel : INotifyPropertyChanged
-{
-    private ObservableCollection<TourLog> _tourLogs;
-    private ObservableCollection<Tour> _tours;
-    private TourLog _selectedTourLog;
-    private DateTime _editTourLogDateTime;
-    private string _editTourLogComment;
-    private int _editTourLogDifficulty;
-    private double _editTourLogTotalDistance;
-    private TimeSpan _editTourLogTotalTime;
-    private int _editTourLogRating;
-    private string _editTourLogStatusMessage;
-    private Tour _editTour;
-    private string _searchText;
+namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
+    public class TourLogViewModel : ViewModelBase {
 
-    private readonly TourLogService _tourLogService;
-    private readonly TourService _tourService;
+        private static readonly ILog log = LogManager.GetLogger(typeof(TourLogViewModel));
+        private readonly TourLogService _tourLogService;
 
-    public TourLogViewModel(TourLogService tourLogService, TourService tourService)
-    {
-        _tourLogService = tourLogService;
-        _tourService = tourService;
-
-        TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs());
-        Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
-
-        AddTourLogCommand = new RelayCommand(AddTourLog);
-        UpdateTourLogCommand = new RelayCommand(UpdateTourLog, CanModifyDeleteTourLog);
-        DeleteTourLogCommand = new RelayCommand(DeleteTourLog, CanModifyDeleteTourLog);
-        RefreshTourLogsCommand = new RelayCommand(RefreshTourLogs);
-        SearchCommand = new RelayCommand(SearchTourLogs);
-    }
-
-    public ObservableCollection<TourLog> TourLogs
-    {
-        get => _tourLogs;
-        set { _tourLogs = value; OnPropertyChanged(nameof(TourLogs)); }
-    }
-
-    public ObservableCollection<Tour> Tours
-    {
-        get => _tours;
-        set { _tours = value; OnPropertyChanged(nameof(Tours)); }
-    }
-
-    public TourLog SelectedTourLog
-    {
-        get => _selectedTourLog;
-        set
-        {
-            _selectedTourLog = value;
-            OnPropertyChanged(nameof(SelectedTourLog));
-            (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
-
-            if (_selectedTourLog != null)
-            {
-                EditTourLogDateTime = _selectedTourLog.DateTime;
-                EditTourLogComment = _selectedTourLog.Comment;
-                EditTourLogDifficulty = _selectedTourLog.Difficulty;
-                EditTourLogTotalDistance = _selectedTourLog.TotalDistance;
-                EditTourLogTotalTime = _selectedTourLog.TotalTime;
-                EditTourLogRating = _selectedTourLog.Rating;
-                EditTourLogStatusMessage = _selectedTourLog.StatusMessage;
-                EditTour = _selectedTourLog.Tour;
+        public ObservableCollection<TourLog> TourLogs { get; private set; }
+        private TourLog _selectedTourLog;
+        public TourLog SelectedTourLog {
+            get => _selectedTourLog;
+            set {
+                SetProperty(ref _selectedTourLog, value);
+                (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
-    }
 
-    public DateTime EditTourLogDateTime
-    {
-        get => _editTourLogDateTime;
-        set { _editTourLogDateTime = value; OnPropertyChanged(nameof(EditTourLogDateTime)); }
-    }
+        // Properties for new tour log input
+        public DateTime NewTourLogDateTime { get; set; } = DateTime.Now;
+        public string NewTourLogComment { get; set; }
+        public int NewTourLogDifficulty { get; set; }
+        public double NewTourLogTotalDistance { get; set; }
+        public TimeSpan NewTourLogTotalTime { get; set; }
+        public int NewTourLogRating { get; set; }
+        public string NewTourLogStatusMessage { get; set; }
 
-    public string EditTourLogComment
-    {
-        get => _editTourLogComment;
-        set { _editTourLogComment = value; OnPropertyChanged(nameof(EditTourLogComment)); }
-    }
+        // Commands
+        public ICommand AddTourLogCommand { get; }
+        public ICommand UpdateTourLogCommand { get; }
+        public ICommand DeleteTourLogCommand { get; }
+        public ICommand SearchCommand { get; }
 
-    public int EditTourLogDifficulty
-    {
-        get => _editTourLogDifficulty;
-        set { _editTourLogDifficulty = value; OnPropertyChanged(nameof(EditTourLogDifficulty)); }
-    }
+        public string SearchText { get; set; }
 
-    public double EditTourLogTotalDistance
-    {
-        get => _editTourLogTotalDistance;
-        set { _editTourLogTotalDistance = value; OnPropertyChanged(nameof(EditTourLogTotalDistance)); }
-    }
+        public TourLogViewModel(TourLogService tourLogService) {
+            _tourLogService = tourLogService;
+            TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs());
 
-    public TimeSpan EditTourLogTotalTime
-    {
-        get => _editTourLogTotalTime;
-        set { _editTourLogTotalTime = value; OnPropertyChanged(nameof(EditTourLogTotalTime)); }
-    }
-
-    public int EditTourLogRating
-    {
-        get => _editTourLogRating;
-        set { _editTourLogRating = value; OnPropertyChanged(nameof(EditTourLogRating)); }
-    }
-
-    public string EditTourLogStatusMessage
-    {
-        get => _editTourLogStatusMessage;
-        set { _editTourLogStatusMessage = value; OnPropertyChanged(nameof(EditTourLogStatusMessage)); }
-    }
-
-    public Tour EditTour
-    {
-        get => _editTour;
-        set { _editTour = value; OnPropertyChanged(nameof(EditTour)); }
-    }
-
-    public string SearchText
-    {
-        get => _searchText;
-        set { _searchText = value; OnPropertyChanged(nameof(SearchText)); }
-    }
-
-    public ICommand AddTourLogCommand { get; private set; }
-    public ICommand UpdateTourLogCommand { get; private set; }
-    public ICommand DeleteTourLogCommand { get; private set; }
-    public ICommand RefreshTourLogsCommand { get; private set; }
-    public ICommand SearchCommand { get; private set; }
-
-    private void AddTourLog(object parameter)
-    {
-        if (EditTour == null)
-        {
-            return;
+            AddTourLogCommand = new RelayCommand(param => AddTourLog());
+            UpdateTourLogCommand = new RelayCommand(param => UpdateTourLog(), param => CanModifyTourLog());
+            DeleteTourLogCommand = new RelayCommand(param => DeleteTourLog(), param => CanModifyTourLog());
+            SearchCommand = new RelayCommand(param => SearchTourLogs());
         }
 
-        // Ensure StatusMessage is not null or empty
-        if (string.IsNullOrWhiteSpace(EditTourLogStatusMessage))
-        {
-            EditTourLogStatusMessage = "No status"; // or some other default value
+        private void AddTourLog() {
+            log.Info("Adding a new tour log.");
+            var newTourLog = new TourLog {
+                DateTime = NewTourLogDateTime,
+                Comment = NewTourLogComment,
+                Difficulty = NewTourLogDifficulty,
+                TotalDistance = NewTourLogTotalDistance,
+                TotalTime = NewTourLogTotalTime,
+                Rating = NewTourLogRating,
+                StatusMessage = NewTourLogStatusMessage
+            };
+
+            _tourLogService.AddTourLog(newTourLog);
+            TourLogs.Add(newTourLog);
+            ClearNewTourLogFields();
+            log.Info("New tour log added.");
         }
 
-        var newLog = new TourLog
-        {
-            DateTime = DateTime.SpecifyKind(EditTourLogDateTime, DateTimeKind.Utc),
-            Comment = EditTourLogComment,
-            Difficulty = EditTourLogDifficulty,
-            TotalDistance = EditTourLogTotalDistance,
-            TotalTime = EditTourLogTotalTime,
-            Rating = EditTourLogRating,
-            TourId = EditTour.TourId,
-            StatusMessage = EditTourLogStatusMessage
-        };
+        private void UpdateTourLog() {
+            if (SelectedTourLog != null) {
+                log.Info($"Updating tour log ID: {SelectedTourLog.TourLogId}");
+                SelectedTourLog.DateTime = NewTourLogDateTime;
+                SelectedTourLog.Comment = NewTourLogComment;
+                SelectedTourLog.Difficulty = NewTourLogDifficulty;
+                SelectedTourLog.TotalDistance = NewTourLogTotalDistance;
+                SelectedTourLog.TotalTime = NewTourLogTotalTime;
+                SelectedTourLog.Rating = NewTourLogRating;
+                SelectedTourLog.StatusMessage = NewTourLogStatusMessage;
 
-        if (IsValidTourLog(newLog))
-        {
-            _tourLogService.AddTourLog(newLog);
-            newLog.Tour = EditTour; // Set the associated Tour
-            TourLogs.Add(newLog);
-            SelectedTourLog = newLog;
-            ClearFormFields();
-        }
-    }
-
-    private void UpdateTourLog(object parameter)
-    {
-        if (SelectedTourLog != null)
-        {
-            _tourLogService.Save();
-            RefreshTourLogs(null);
-        }
-    }
-
-    private void DeleteTourLog(object parameter)
-    {
-        if (SelectedTourLog != null)
-        {
-            _tourLogService.DeleteTourLog(SelectedTourLog);
-            TourLogs.Remove(SelectedTourLog);
-            SelectedTourLog = null;
-        }
-    }
-
-    private bool CanModifyDeleteTourLog(object parameter)
-    {
-        return SelectedTourLog != null;
-    }
-
-    private bool IsValidTourLog(TourLog tourLog)
-    {
-        return tourLog.TourId > 0 &&
-               !string.IsNullOrEmpty(tourLog.Comment) &&
-               tourLog.Difficulty > 0 &&
-               tourLog.TotalDistance > 0 &&
-               tourLog.TotalTime > TimeSpan.Zero &&
-               tourLog.Rating >= 1 && tourLog.Rating <= 5;
-    }
-
-    private void RefreshTourLogs(object parameter)
-    {
-        TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs().Select(tl =>
-        {
-            tl.Tour = _tourService.GetTourById(tl.TourId);
-            return tl;
-        }));
-    }
-
-    private void ClearFormFields()
-    {
-        EditTourLogDateTime = DateTime.UtcNow;
-        EditTourLogComment = string.Empty;
-        EditTourLogDifficulty = 0;
-        EditTourLogTotalDistance = 0;
-        EditTourLogTotalTime = TimeSpan.Zero;
-        EditTourLogRating = 0;
-        EditTourLogStatusMessage = string.Empty;
-        EditTour = null;
-    }
-
-    private void SearchTourLogs(object parameter)
-    {
-        TourLogs.Clear();
-        var searchResults = _tourLogService.SearchTourLogs(SearchText);
-        foreach (var tourLog in searchResults)
-        {
-            TourLogs.Add(tourLog);
-        }
-    }
-
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetProperty<T>(ref T storage, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
-    {
-        if (object.Equals(storage, value))
-        {
-            return false;
+                _tourLogService.Save();
+                RefreshTourLogs();
+                log.Info("Tour log updated.");
+            }
         }
 
-        storage = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
+        private void DeleteTourLog() {
+            if (SelectedTourLog != null) {
+                log.Info($"Deleting tour log ID: {SelectedTourLog.TourLogId}");
+                _tourLogService.DeleteTourLog(SelectedTourLog);
+                TourLogs.Remove(SelectedTourLog);
+                SelectedTourLog = null;
+                log.Info("Tour log deleted.");
+            }
+        }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+        private bool CanModifyTourLog() => SelectedTourLog != null;
+
+        private void SearchTourLogs() {
+            log.Info($"Searching tour logs with text: {SearchText}");
+            var searchResults = _tourLogService.SearchTourLogs(SearchText);
+            TourLogs.Clear();
+            foreach (var tourLog in searchResults) {
+                TourLogs.Add(tourLog);
+            }
+            log.Info("Tour logs search completed.");
+        }
+
+        private void RefreshTourLogs() {
+            TourLogs.Clear();
+            foreach (var tourLog in _tourLogService.GetAllTourLogs()) {
+                TourLogs.Add(tourLog);
+            }
+        }
+
+        private void ClearNewTourLogFields() {
+            NewTourLogDateTime = DateTime.Now;
+            NewTourLogComment = string.Empty;
+            NewTourLogDifficulty = 0;
+            NewTourLogTotalDistance = 0;
+            NewTourLogTotalTime = TimeSpan.Zero;
+            NewTourLogRating = 0;
+            NewTourLogStatusMessage = string.Empty;
+            OnPropertyChanged(nameof(NewTourLogDateTime));
+            OnPropertyChanged(nameof(NewTourLogComment));
+            OnPropertyChanged(nameof(NewTourLogDifficulty));
+            OnPropertyChanged(nameof(NewTourLogTotalDistance));
+            OnPropertyChanged(nameof(NewTourLogTotalTime));
+            OnPropertyChanged(nameof(NewTourLogRating));
+            OnPropertyChanged(nameof(NewTourLogStatusMessage));
+        }
+    }
 }

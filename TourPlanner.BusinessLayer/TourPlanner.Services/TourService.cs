@@ -11,21 +11,19 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
     public class TourService
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(TourService));
-
-        private readonly AppDbContext _context;
-
         private readonly TourReportService _reportService;
+        private readonly AppDbContext _context;
 
 
         public TourService(AppDbContext context, TourReportService reportService)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            _reportService = reportService ?? throw new ArgumentNullException(nameof(reportService));
+            _context = context;
+            _reportService = reportService;
         }
 
         public IEnumerable<Tour> GetAllTours()
         {
-            return _context.Tours.ToList();
+            return _context.Tours;
         }
 
         public Tour GetTourById(int tourId)
@@ -35,12 +33,14 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
 
         public void AddTour(Tour tour)
         {
+            log.Info($"Adding Tour: {tour.TourName}");
             _context.Tours.Add(tour);
             _context.SaveChanges();
         }
 
-        public void Save()
+        public void UpdateTour(Tour tour)
         {
+            _context.Tours.Update(tour);
             _context.SaveChanges();
         }
 

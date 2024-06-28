@@ -10,7 +10,7 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services {
         private readonly AppDbContext _context;
 
         public TourLogService(AppDbContext context) {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _context = context;
         }
 
         public IEnumerable<TourLog> GetAllTourLogs() {
