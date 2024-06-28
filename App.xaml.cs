@@ -64,6 +64,7 @@ namespace Tour_planner {
             services.AddScoped<TourReportService>();
 
             // Register your ViewModels
+            services.AddSingleton<MainWindow>();
             services.AddTransient<TourViewModel>();
             services.AddTransient<TourLogViewModel>();
 

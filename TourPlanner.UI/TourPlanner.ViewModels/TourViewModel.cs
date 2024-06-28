@@ -6,6 +6,7 @@ using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 using Tour_planner.TourPlanner.Commands;
 using System.Linq;
 using log4net;
+using Tour_planner.TourPlanner.UI.TourPlanner.Views;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
     public class TourViewModel : ViewModelBase {
@@ -13,13 +14,31 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
         private static readonly ILog log = LogManager.GetLogger(typeof(TourViewModel));
         private readonly TourService _tourService;
         private readonly OpenRouteService _routeService;
+        private readonly MainWindow _mainWindow;
 
         public ObservableCollection<Tour> Tours { get; private set; }
         private Tour _selectedTour;
         public Tour SelectedTour {
             get => _selectedTour;
             set {
-                SetProperty(ref _selectedTour, value);
+                if (SetProperty(ref _selectedTour, value) && value != null)
+                {
+                    //Update fields with selected tour details
+                    NewTourName = value.TourName;
+                    NewTourDescription = value.Description;
+                    NewTourFrom = value.From;
+                    NewTourTo = value.To;
+                    NewTourTransportType = value.TransportType;
+                    NewTourTransportType = value.TransportType;
+                    //NewTourDistance = value.TourDistance;
+                    //NewTourEstimatedTime = value.EstimatedTime;
+                    //NewTourPopularity = value.Popularity;
+                    //NewTourChildFriendliness = value.ChildFriendliness;
+
+                    //Display route on map
+                    _ = DisplayRouteOnMap(value.From, value.To);
+                }   
+
                 (UpdateTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
@@ -42,12 +61,13 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         public string SearchText { get; set; }
 
-        public TourViewModel(TourService tourService, OpenRouteService routeService) {
+        public TourViewModel(TourService tourService, OpenRouteService routeService, MainWindow mainWindow) {
 
             log.Debug("Initializing TourViewModel");
 
             _tourService = tourService;
             _routeService = routeService;
+            _mainWindow = mainWindow;
             Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
 
             AddTourCommand = new RelayCommand(param => AddTour());
@@ -56,6 +76,25 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             SearchCommand = new RelayCommand(param => SearchTours());
             GenerateTourReportCommand = new RelayCommand(param => GenerateTourReport(), param => CanModifyTour());
             GenerateSummaryReportCommand = new RelayCommand(param => GenerateSummaryReport());
+        }
+
+        private async Task DisplayRouteOnMap(string from, string to)
+        {
+            try
+            {
+                var fromCoordinates = await _routeService.GetCoordinatesAsync(from);
+                var toCoordinates = await _routeService.GetCoordinatesAsync(to);
+
+                var route = await _routeService.GetRouteAsync(
+                    $"{fromCoordinates.Longitude}, {fromCoordinates.Latitude}",
+                    $"{toCoordinates.Longitude}, {toCoordinates.Latitude}"
+                );
+                _mainWindow.AddRouteToMap(route.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error displaying route on map: {ex.Message}");
+            }
         }
 
         private void AddTour() {

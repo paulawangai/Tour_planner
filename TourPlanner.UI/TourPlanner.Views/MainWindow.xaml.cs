@@ -17,6 +17,14 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views {
             Loaded += MainWindow_Loaded;
         }
 
+        async void InitializeAsync()
+        {
+            await webView.EnsureCoreWebView2Async(null);
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string htmlPath = Path.Combine(currentDirectory, "map.html");
+            webView.CoreWebView2.Navigate(new Uri(htmlPath).ToString());
+        }
+
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e) {
             await InitializeWebView();
         }
@@ -28,7 +36,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views {
         }
 
         public async Task AddRouteToMap(string geoJson) {
-            if (webView.CoreWebView2 != null) {
+            if (webView != null && webView.CoreWebView2 != null) {
                 string script = $"addRoute({geoJson})";
                 await webView.CoreWebView2.ExecuteScriptAsync(script);
             }

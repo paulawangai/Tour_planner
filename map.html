@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Leaflet Map</title>
+    <title>Tour Map</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,33 +9,38 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
     <style>
-        #map {
+        html, body, #map {
             height: 100%;
-            width: 100%;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
 <body>
-<div id="map"></div>
-
-<script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
-
+    <div id="map"></div>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        var routeLayer;
+
         // Function to add a route to the map
-        function addRoute(route) {
-            var geoJsonLayer = L.geoJson(route, {
+        function addRoute(geoJson) {
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+            }
+            routeLayer = L.geoJson(geoJson, {
                 style: function (feature) {
                     return { color: 'blue' };
                 }
             }).addTo(map);
-            map.fitBounds(geoJsonLayer.getBounds());
-        }
+            
+            map.fitBounds(routeLayer.getBounds());
+        }   
 
-        // Load the directions.js file if it exists
+        // Load the directions.js file
         var script = document.createElement('script');
         script.src = 'directions.js';
         document.body.appendChild(script);

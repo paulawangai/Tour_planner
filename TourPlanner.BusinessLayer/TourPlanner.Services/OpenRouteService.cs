@@ -53,6 +53,10 @@ public class OpenRouteService {
 
     public async Task<(double Longitude, double Latitude)> GetCoordinatesAsync(string location) {
         log.Debug($"Getting coordinates for location: {location}");
+        var response = await _httpClient.GetAsync($"https://api.openrouteservice.org/geocode/search?api_key={_apiKey}&text={Uri.EscapeDataString(location)}");
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+        var json = JObject.Parse(content);
         var geocodeResult = await GeocodeAsync(location);
         var coordinates = geocodeResult["features"]?[0]?["geometry"]?["coordinates"];
         if (coordinates == null) {
