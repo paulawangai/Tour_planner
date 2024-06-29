@@ -11,8 +11,10 @@ using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 using Tour_planner.TourPlanner.UI.TourPlanner.Views;
 
-namespace Tour_planner {
-    public partial class App : Application {
+namespace Tour_planner
+{
+    public partial class App : Application
+    {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(App));
         private static IServiceProvider _serviceProvider;
@@ -21,7 +23,8 @@ namespace Tour_planner {
         public static IServiceProvider ServiceProvider => _serviceProvider;
         public static IConfiguration Configuration => _configuration;
 
-        protected override void OnStartup(StartupEventArgs e) {
+        protected override void OnStartup(StartupEventArgs e)
+        {
             base.OnStartup(e);
 
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -44,7 +47,8 @@ namespace Tour_planner {
             mainWindow.Show();
         }
 
-        private void ConfigureServices(IServiceCollection services) {
+        private void ConfigureServices(IServiceCollection services)
+        {
             // Register configuration
             services.AddSingleton<IConfiguration>(_configuration);
 
@@ -64,12 +68,11 @@ namespace Tour_planner {
             services.AddScoped<TourReportService>();
 
             // Register your ViewModels
-            services.AddSingleton<MainWindow>();
             services.AddTransient<TourViewModel>();
             services.AddTransient<TourLogViewModel>();
 
             // Register MainWindow
-            services.AddTransient<MainWindow>();
+            services.AddSingleton<MainWindow>();
         }
     }
 }

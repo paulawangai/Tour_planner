@@ -7,7 +7,7 @@
         <!-- Base Font Family and Size -->
         <FontFamily x:Key="BaseFontFamily">Segoe UI</FontFamily>
         <!-- Color Definitions -->
-        <SolidColorBrush x:Key="PrimaryColorBrush" Color="#333333"/>
+        <SolidColorBrush x:Key="PrimaryColorBrush" Color="Black"/>
         <!-- Dark Gray for contrast -->
         <SolidColorBrush x:Key="LightTextBrush" Color="#FFFFFF"/>
         <!-- White text -->
@@ -33,12 +33,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryColorBrush}"/>
             <Setter Property="Padding" Value="10,5"/>
             <Setter Property="Margin" Value="5"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF5C7BFE"/>
-                    <!-- Lighter blue on hover for better visibility -->
-                </Trigger>
-            </Style.Triggers>
+            
         </Style>
     </Application.Resources>
 </Application>

@@ -20,13 +20,34 @@
                                         <Setter Property="Foreground" Value="Transparent"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Path=Text, Source={x:Reference textSource}}" Value="">
-                                                <Setter Property="Foreground" Value="Gray"/>
+                                                <Setter Property="Foreground" Value="White"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
                         </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="WhiteButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -43,18 +64,39 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="10">
-                <DatePicker SelectedDate="{Binding NewTourLogDateTime}" Margin="0,5"/>
-                <TextBox Text="{Binding NewTourLogComment}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Comment"/>
-                <TextBox Text="{Binding NewTourLogDifficulty}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Difficulty (1-5)"/>
-                <TextBox Text="{Binding NewTourLogTotalDistance}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Total Distance (km)"/>
-                <TextBox Text="{Binding NewTourLogTotalTime}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Total Time (hh:mm:ss)"/>
-                <TextBox Text="{Binding NewTourLogRating}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Rating (1-5)"/>
-                <TextBox Text="{Binding NewTourLogStatusMessage}" Margin="0,5" Style="{StaticResource PlaceholderTextBox}" Tag="Status Message"/>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Date:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <DatePicker SelectedDate="{Binding NewTourLogDateTime}" Margin="0,5" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Comment:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogComment}" Style="{StaticResource PlaceholderTextBox}" Tag="Comment" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Difficulty (1-5):" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogDifficulty}" Style="{StaticResource PlaceholderTextBox}" Tag="Difficulty (1-5)" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Total Distance (km):" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogTotalDistance}" Style="{StaticResource PlaceholderTextBox}" Tag="Total Distance (km)" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Total Time (hh:mm:ss):" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogTotalTime}" Style="{StaticResource PlaceholderTextBox}" Tag="Total Time (hh:mm:ss)" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Rating (1-5):" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogRating}" Style="{StaticResource PlaceholderTextBox}" Tag="Rating (1-5)" Width="300"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Status Message:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
+                    <TextBox Text="{Binding NewTourLogStatusMessage}" Style="{StaticResource PlaceholderTextBox}" Tag="Status Message" Width="300"/>
+                </StackPanel>
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="10">
-                <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="0,5"/>
-                <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="0,5"/>
-                <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="0,5"/>
+                <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
+                <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
+                <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
             </StackPanel>
         </Grid>
     </Grid>

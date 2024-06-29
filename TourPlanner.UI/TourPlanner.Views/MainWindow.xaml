@@ -13,9 +13,10 @@
 
         <!-- Search Bar -->
         <StackPanel Orientation="Horizontal" Margin="10">
-            <TextBox Width="300" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Content="Search" Command="{Binding SearchCommand}" Margin="10,0,0,0"/>
+            <TextBox Width="300" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Background="White" Foreground="Black"/>
+            <Button Content="Search" Command="{Binding SearchCommand}" Margin="10,0,0,0" Background="White" Foreground="Black" BorderBrush="Black"/>
         </StackPanel>
+
 
         <!-- Main Content Area -->
         <TabControl Grid.Row="1" Margin="10">

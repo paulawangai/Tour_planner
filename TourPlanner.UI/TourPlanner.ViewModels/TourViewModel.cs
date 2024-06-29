@@ -6,38 +6,37 @@ using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 using Tour_planner.TourPlanner.Commands;
 using System.Linq;
 using log4net;
-using Tour_planner.TourPlanner.UI.TourPlanner.Views;
+using System.Threading.Tasks;
 
-namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
-    public class TourViewModel : ViewModelBase {
-
+namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
+{
+    public class TourViewModel : ViewModelBase
+    {
         private static readonly ILog log = LogManager.GetLogger(typeof(TourViewModel));
         private readonly TourService _tourService;
         private readonly OpenRouteService _routeService;
-        private readonly MainWindow _mainWindow;
+
+        public event EventHandler<string> RouteDisplayRequested;
 
         public ObservableCollection<Tour> Tours { get; private set; }
         private Tour _selectedTour;
-        public Tour SelectedTour {
+        public Tour SelectedTour
+        {
             get => _selectedTour;
-            set {
+            set
+            {
                 if (SetProperty(ref _selectedTour, value) && value != null)
                 {
-                    //Update fields with selected tour details
+                    // Update fields with selected tour details
                     NewTourName = value.TourName;
                     NewTourDescription = value.Description;
                     NewTourFrom = value.From;
                     NewTourTo = value.To;
                     NewTourTransportType = value.TransportType;
-                    NewTourTransportType = value.TransportType;
-                    //NewTourDistance = value.TourDistance;
-                    //NewTourEstimatedTime = value.EstimatedTime;
-                    //NewTourPopularity = value.Popularity;
-                    //NewTourChildFriendliness = value.ChildFriendliness;
 
-                    //Display route on map
+                    // Display route on map
                     _ = DisplayRouteOnMap(value.From, value.To);
-                }   
+                }
 
                 (UpdateTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -61,13 +60,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         public string SearchText { get; set; }
 
-        public TourViewModel(TourService tourService, OpenRouteService routeService, MainWindow mainWindow) {
-
+        public TourViewModel(TourService tourService, OpenRouteService routeService)
+        {
             log.Debug("Initializing TourViewModel");
 
             _tourService = tourService;
             _routeService = routeService;
-            _mainWindow = mainWindow;
             Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
 
             AddTourCommand = new RelayCommand(param => AddTour());
@@ -86,10 +84,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                 var toCoordinates = await _routeService.GetCoordinatesAsync(to);
 
                 var route = await _routeService.GetRouteAsync(
-                    $"{fromCoordinates.Longitude}, {fromCoordinates.Latitude}",
-                    $"{toCoordinates.Longitude}, {toCoordinates.Latitude}"
+                    $"{fromCoordinates.Longitude},{fromCoordinates.Latitude}",
+                    $"{toCoordinates.Longitude},{toCoordinates.Latitude}"
                 );
-                _mainWindow.AddRouteToMap(route.ToString());
+
+                string geoJson = route.ToString();
+                RouteDisplayRequested?.Invoke(this, geoJson);
             }
             catch (Exception ex)
             {
@@ -97,11 +97,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             }
         }
 
-        private void AddTour() {
-
+        private void AddTour()
+        {
             log.Info($"Adding new tour: {NewTourName}");
 
-            var newTour = new Tour {
+            var newTour = new Tour
+            {
                 TourName = NewTourName,
                 Description = NewTourDescription,
                 From = NewTourFrom,
@@ -115,8 +116,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             log.Info("New tour added.");
         }
 
-        private void UpdateTour() {
-            if (SelectedTour != null) {
+        private void UpdateTour()
+        {
+            if (SelectedTour != null)
+            {
                 log.Info($"Updating tour: {SelectedTour.TourName}");
                 SelectedTour.TourName = NewTourName;
                 SelectedTour.Description = NewTourDescription;
@@ -130,8 +133,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             }
         }
 
-        private void DeleteTour() {
-            if (SelectedTour != null) {
+        private void DeleteTour()
+        {
+            if (SelectedTour != null)
+            {
                 log.Info($"Deleting tour: {SelectedTour.TourName}");
                 _tourService.DeleteTour(SelectedTour);
                 Tours.Remove(SelectedTour);
@@ -142,24 +147,29 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         private bool CanModifyTour() => SelectedTour != null;
 
-        private void SearchTours() {
+        private void SearchTours()
+        {
             log.Info($"Searching tours with text: {SearchText}");
             var searchResults = _tourService.SearchTours(SearchText);
             Tours.Clear();
-            foreach (var tour in searchResults) {
+            foreach (var tour in searchResults)
+            {
                 Tours.Add(tour);
             }
             log.Info("Tours search completed.");
         }
 
-        private void RefreshTours() {
+        private void RefreshTours()
+        {
             Tours.Clear();
-            foreach (var tour in _tourService.GetAllTours()) {
+            foreach (var tour in _tourService.GetAllTours())
+            {
                 Tours.Add(tour);
             }
         }
 
-        private void ClearNewTourFields() {
+        private void ClearNewTourFields()
+        {
             NewTourName = string.Empty;
             NewTourDescription = string.Empty;
             NewTourFrom = string.Empty;
@@ -172,15 +182,18 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             OnPropertyChanged(nameof(NewTourTransportType));
         }
 
-        private async void GenerateTourReport() {
-            if (SelectedTour != null) {
+        private async void GenerateTourReport()
+        {
+            if (SelectedTour != null)
+            {
                 string outputPath = $"TourReport_{SelectedTour.TourId}.pdf";
                 await _tourService.GenerateTourReport(SelectedTour.TourId, outputPath);
                 log.Info($"Tour report generated for tour ID: {SelectedTour.TourId} at {outputPath}");
             }
         }
 
-        private async void GenerateSummaryReport() {
+        private async void GenerateSummaryReport()
+        {
             string outputPath = "SummaryReport.pdf";
             await _tourService.GenerateSummaryReport(outputPath);
             log.Info($"Summary report generated at {outputPath}");
