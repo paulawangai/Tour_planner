@@ -7,8 +7,10 @@ using Tour_planner.TourPlanner.Commands;
 using System.Linq;
 using log4net;
 
-namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
-    public class TourLogViewModel : ViewModelBase {
+namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
+{
+    public class TourLogViewModel : ViewModelBase
+    {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(TourLogViewModel));
         private readonly TourLogService _tourLogService;
@@ -18,9 +20,11 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
         public ObservableCollection<Tour> Tours { get; private set; }
 
         private TourLog _selectedTourLog;
-        public TourLog SelectedTourLog {
+        public TourLog SelectedTourLog
+        {
             get => _selectedTourLog;
-            set {
+            set
+            {
                 SetProperty(ref _selectedTourLog, value);
                 (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
@@ -28,9 +32,17 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
         }
 
         private Tour _selectedTour;
+<<<<<<< HEAD
         public Tour SelectedTour {
             get => _selectedTour;
             set {
+=======
+        public Tour SelectedTour
+        {
+            get => _selectedTour;
+            set
+            {
+>>>>>>> d515d74c3d1101b9e5ffc068a20d2105d2bc2b6c
                 SetProperty(ref _selectedTour, value);
             }
         }
@@ -52,7 +64,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         public string SearchText { get; set; }
 
+<<<<<<< HEAD
         public TourLogViewModel(TourLogService tourLogService, TourService tourService) {
+=======
+        public TourLogViewModel(TourLogService tourLogService, TourService tourService)
+        {
+>>>>>>> d515d74c3d1101b9e5ffc068a20d2105d2bc2b6c
             _tourLogService = tourLogService;
             _tourService = tourService;
 
@@ -65,10 +82,20 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             SearchCommand = new RelayCommand(param => SearchTourLogs());
         }
 
+<<<<<<< HEAD
         private void AddTourLog() {
             if (SelectedTour != null) {
                 log.Info("Adding a new tour log.");
                 var newTourLog = new TourLog {
+=======
+        private void AddTourLog()
+        {
+            if (SelectedTour != null)
+            {
+                log.Info("Adding a new tour log.");
+                var newTourLog = new TourLog
+                {
+>>>>>>> d515d74c3d1101b9e5ffc068a20d2105d2bc2b6c
                     TourId = SelectedTour.TourId,
                     DateTime = NewTourLogDateTime,
                     Comment = NewTourLogComment,
@@ -76,7 +103,11 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                     TotalDistance = NewTourLogTotalDistance,
                     TotalTime = NewTourLogTotalTime,
                     Rating = NewTourLogRating,
+<<<<<<< HEAD
                     StatusMessage = NewTourLogStatusMessage,
+=======
+                    StatusMessage = NewTourLogStatusMessage
+>>>>>>> d515d74c3d1101b9e5ffc068a20d2105d2bc2b6c
                 };
 
                 _tourLogService.AddTourLog(newTourLog);
@@ -84,13 +115,20 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                 ClearNewTourLogFields();
                 log.Info("New tour log added.");
             }
+<<<<<<< HEAD
             else {
+=======
+            else
+            {
+>>>>>>> d515d74c3d1101b9e5ffc068a20d2105d2bc2b6c
                 log.Warn("No tour selected. Cannot add tour log.");
             }
         }
 
-        private void UpdateTourLog() {
-            if (SelectedTourLog != null) {
+        private void UpdateTourLog()
+        {
+            if (SelectedTourLog != null)
+            {
                 log.Info($"Updating tour log ID: {SelectedTourLog.TourLogId}");
                 SelectedTourLog.TourId = SelectedTour?.TourId ?? SelectedTourLog.TourId;
                 SelectedTourLog.DateTime = NewTourLogDateTime;
@@ -107,8 +145,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             }
         }
 
-        private void DeleteTourLog() {
-            if (SelectedTourLog != null) {
+        private void DeleteTourLog()
+        {
+            if (SelectedTourLog != null)
+            {
                 log.Info($"Deleting tour log ID: {SelectedTourLog.TourLogId}");
                 _tourLogService.DeleteTourLog(SelectedTourLog);
                 TourLogs.Remove(SelectedTourLog);
@@ -119,24 +159,29 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         private bool CanModifyTourLog() => SelectedTourLog != null;
 
-        private void SearchTourLogs() {
+        private void SearchTourLogs()
+        {
             log.Info($"Searching tour logs with text: {SearchText}");
             var searchResults = _tourLogService.SearchTourLogs(SearchText);
             TourLogs.Clear();
-            foreach (var tourLog in searchResults) {
+            foreach (var tourLog in searchResults)
+            {
                 TourLogs.Add(tourLog);
             }
             log.Info("Tour logs search completed.");
         }
 
-        private void RefreshTourLogs() {
+        private void RefreshTourLogs()
+        {
             TourLogs.Clear();
-            foreach (var tourLog in _tourLogService.GetAllTourLogs()) {
+            foreach (var tourLog in _tourLogService.GetAllTourLogs())
+            {
                 TourLogs.Add(tourLog);
             }
         }
 
-        private void ClearNewTourLogFields() {
+        private void ClearNewTourLogFields()
+        {
             NewTourLogDateTime = DateTime.Now;
             NewTourLogComment = string.Empty;
             NewTourLogDifficulty = 0;
