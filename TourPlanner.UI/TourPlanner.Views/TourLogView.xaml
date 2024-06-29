@@ -54,13 +54,21 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-        <!-- Your existing Grid content -->
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
         <!-- Tour Log Input Form -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Column="0" Grid.Row="0" Margin="10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Margin="10">
@@ -93,11 +101,26 @@
                     <TextBox Text="{Binding NewTourLogStatusMessage}" Style="{StaticResource PlaceholderTextBox}" Tag="Status Message" Width="300"/>
                 </StackPanel>
             </StackPanel>
-            <StackPanel Grid.Column="1" Margin="10">
-                <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
-                <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
-                <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="0,5" Style="{StaticResource WhiteButtonStyle}"/>
-            </StackPanel>
         </Grid>
+
+        <!-- Add, Update, Delete Buttons at the bottom of the input form -->
+        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,5,10,0">
+            <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="5,5" Style="{StaticResource WhiteButtonStyle}"/>
+            <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="5,5" Style="{StaticResource WhiteButtonStyle}"/>
+            <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="5,5" Style="{StaticResource WhiteButtonStyle}"/>
+        </StackPanel>
+
+        <!-- Tour Log List with Column Titles on the right side -->
+        <StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Margin="10">
+            <TextBlock Text="Tour Logs" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" Foreground="Black"/>
+            <DataGrid ItemsSource="{Binding TourLogs}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" Width="*"/>
+                    <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="*"/>
+                    <DataGridTextColumn Header="Difficulty" Binding="{Binding Difficulty}" Width="*"/>
+                    <DataGridTextColumn Header="Rating" Binding="{Binding Rating}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
     </Grid>
 </UserControl>
