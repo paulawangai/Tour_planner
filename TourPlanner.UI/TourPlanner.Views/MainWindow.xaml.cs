@@ -9,14 +9,16 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
 {
     public partial class MainWindow : Window
     {
-        private readonly TourViewModel _viewModel;
+        private readonly MainViewModel _viewModel;
 
-        public MainWindow(TourViewModel tourViewModel)
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
-            _viewModel = tourViewModel;
+            _viewModel = viewModel;
             DataContext = _viewModel;
-            _viewModel.RouteDisplayRequested += OnRouteDisplayRequested;
+
+            // Subscribe to the RouteDisplayRequested event from the TourViewModel
+            _viewModel.TourViewModel.RouteDisplayRequested += OnRouteDisplayRequested;
 
             Loaded += MainWindow_Loaded;
         }

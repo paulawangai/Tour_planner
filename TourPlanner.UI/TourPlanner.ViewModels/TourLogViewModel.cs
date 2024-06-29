@@ -11,7 +11,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
     public class TourLogViewModel : ViewModelBase
     {
-
         private static readonly ILog log = LogManager.GetLogger(typeof(TourLogViewModel));
         private readonly TourLogService _tourLogService;
         private readonly TourService _tourService;

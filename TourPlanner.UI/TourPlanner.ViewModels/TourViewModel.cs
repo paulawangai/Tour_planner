@@ -1,14 +1,15 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 using Tour_planner.TourPlanner.Commands;
-using System.Linq;
 using log4net;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.IO;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
 {
@@ -30,31 +31,70 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 if (SetProperty(ref _selectedTour, value) && value != null)
                 {
                     // Update fields with selected tour details
-                    NewTourName = value.TourName;
-                    NewTourDescription = value.Description;
-                    NewTourFrom = value.From;
-                    NewTourTo = value.To;
-                    NewTourTransportType = value.TransportType;
+                    TourName = value.TourName;
+                    Description = value.Description;
+                    From = value.From;
+                    To = value.To;
+                    TransportType = value.TransportType;
                     Popularity = value.Popularity;
                     ChildFriendliness = value.ChildFriendliness;
-
-                    // Display route on map
-                    _ = DisplayRouteOnMap(value.From, value.To);
                 }
 
                 (UpdateTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteTourCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (UpdateRouteCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
-        // Properties for new tour input
-        public string NewTourName { get; set; }
-        public string NewTourDescription { get; set; }
-        public string NewTourFrom { get; set; }
-        public string NewTourTo { get; set; }
-        public string NewTourTransportType { get; set; }
-        public int Popularity { get; set; }
-        public double ChildFriendliness { get; set; }
+        // Properties for tour input
+        private string _tourName;
+        public string TourName
+        {
+            get => _tourName;
+            set => SetProperty(ref _tourName, value);
+        }
+
+        private string _description;
+        public string Description
+        {
+            get => _description;
+            set => SetProperty(ref _description, value);
+        }
+
+        private string _from;
+        public string From
+        {
+            get => _from;
+            set => SetProperty(ref _from, value);
+        }
+
+        private string _to;
+        public string To
+        {
+            get => _to;
+            set => SetProperty(ref _to, value);
+        }
+
+        private string _transportType;
+        public string TransportType
+        {
+            get => _transportType;
+            set => SetProperty(ref _transportType, value);
+        }
+
+        private int _popularity;
+        public int Popularity
+        {
+            get => _popularity;
+            set => SetProperty(ref _popularity, value);
+        }
+
+        private double _childFriendliness;
+        public double ChildFriendliness
+        {
+            get => _childFriendliness;
+            set => SetProperty(ref _childFriendliness, value);
+        }
 
         // Commands
         public ICommand AddTourCommand { get; }
@@ -65,6 +105,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
         public ICommand GenerateSummaryReportCommand { get; }
         public ICommand ExportToursCommand { get; }
         public ICommand ImportToursCommand { get; }
+        public ICommand UpdateRouteCommand { get; }
 
         public string SearchText { get; set; }
 
@@ -84,47 +125,56 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             GenerateSummaryReportCommand = new RelayCommand(param => GenerateSummaryReport());
             ExportToursCommand = new RelayCommand(param => ExportTours());
             ImportToursCommand = new RelayCommand(param => ImportTours());
+            UpdateRouteCommand = new RelayCommand(param => UpdateRoute(), param => CanModifyTour());
         }
 
         private async Task DisplayRouteOnMap(string from, string to)
         {
             try
             {
+                log.Info($"Fetching coordinates for {from} and {to}");
                 var fromCoordinates = await _routeService.GetCoordinatesAsync(from);
                 var toCoordinates = await _routeService.GetCoordinatesAsync(to);
 
-                var route = await _routeService.GetRouteAsync(
-                    $"{fromCoordinates.Longitude},{fromCoordinates.Latitude}",
-                    $"{toCoordinates.Longitude},{toCoordinates.Latitude}"
-                );
+                var fromLocation = $"{fromCoordinates.Longitude},{fromCoordinates.Latitude}";
+                var toLocation = $"{toCoordinates.Longitude},{toCoordinates.Latitude}";
+
+                log.Info($"Coordinates - From: {fromLocation}, To: {toLocation}");
+
+                var route = await _routeService.GetRouteAsync(fromLocation, toLocation);
 
                 string geoJson = route.ToString();
+                log.Info($"GeoJSON: {geoJson}");
                 RouteDisplayRequested?.Invoke(this, geoJson);
+            }
+            catch (HttpRequestException ex)
+            {
+                log.Error($"HTTP request error displaying route on map: {ex.Message}");
             }
             catch (Exception ex)
             {
-                log.Error($"Error displaying route on map: {ex.Message}");
+                log.Error($"General error displaying route on map: {ex.Message}");
             }
         }
 
         private void AddTour()
         {
-            log.Info($"Adding new tour: {NewTourName}");
+            log.Info($"Adding new tour: {TourName}");
 
             var newTour = new Tour
             {
-                TourName = NewTourName,
-                Description = NewTourDescription,
-                From = NewTourFrom,
-                To = NewTourTo,
-                TransportType = NewTourTransportType,
+                TourName = TourName,
+                Description = Description,
+                From = From,
+                To = To,
+                TransportType = TransportType,
                 Popularity = 0,
                 ChildFriendliness = 0
             };
 
             _tourService.AddTour(newTour);
             Tours.Add(newTour);
-            ClearNewTourFields();
+            ClearTourFields();
             log.Info("New tour added.");
         }
 
@@ -133,11 +183,11 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             if (SelectedTour != null)
             {
                 log.Info($"Updating tour: {SelectedTour.TourName}");
-                SelectedTour.TourName = NewTourName;
-                SelectedTour.Description = NewTourDescription;
-                SelectedTour.From = NewTourFrom;
-                SelectedTour.To = NewTourTo;
-                SelectedTour.TransportType = NewTourTransportType;
+                SelectedTour.TourName = TourName;
+                SelectedTour.Description = Description;
+                SelectedTour.From = From;
+                SelectedTour.To = To;
+                SelectedTour.TransportType = TransportType;
 
                 _tourService.UpdateTour(SelectedTour);
                 _tourService.UpdateTourAttributes(SelectedTour.TourId); // Update computed attributes
@@ -181,20 +231,20 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
             }
         }
 
-        private void ClearNewTourFields()
+        private void ClearTourFields()
         {
-            NewTourName = string.Empty;
-            NewTourDescription = string.Empty;
-            NewTourFrom = string.Empty;
-            NewTourTo = string.Empty;
-            NewTourTransportType = string.Empty;
+            TourName = string.Empty;
+            Description = string.Empty;
+            From = string.Empty;
+            To = string.Empty;
+            TransportType = string.Empty;
             Popularity = 0;
             ChildFriendliness = 0;
-            OnPropertyChanged(nameof(NewTourName));
-            OnPropertyChanged(nameof(NewTourDescription));
-            OnPropertyChanged(nameof(NewTourFrom));
-            OnPropertyChanged(nameof(NewTourTo));
-            OnPropertyChanged(nameof(NewTourTransportType));
+            OnPropertyChanged(nameof(TourName));
+            OnPropertyChanged(nameof(Description));
+            OnPropertyChanged(nameof(From));
+            OnPropertyChanged(nameof(To));
+            OnPropertyChanged(nameof(TransportType));
             OnPropertyChanged(nameof(Popularity));
             OnPropertyChanged(nameof(ChildFriendliness));
         }
@@ -261,6 +311,14 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels
                 {
                     log.Error($"Error importing tours: {ex.Message}");
                 }
+            }
+        }
+
+        private async void UpdateRoute()
+        {
+            if (!string.IsNullOrWhiteSpace(From) && !string.IsNullOrWhiteSpace(To))
+            {
+                await DisplayRouteOnMap(From, To);
             }
         }
     }

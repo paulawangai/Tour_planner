@@ -20,7 +20,7 @@
                                         <Setter Property="Foreground" Value="Transparent"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Path=Text, Source={x:Reference textSource}}" Value="">
-                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="Foreground" Value="Gray"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -31,6 +31,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style x:Key="WhiteButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="Black"/>
@@ -124,7 +125,7 @@
         </StackPanel>
 
         <!-- Add, Update, Delete Buttons below the tour log list -->
-        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,0,0">
+        <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,0,0">
             <Button Content="Add Tour Log" Command="{Binding AddTourLogCommand}" Margin="5" Style="{StaticResource WhiteButtonStyle}"/>
             <Button Content="Update Tour Log" Command="{Binding UpdateTourLogCommand}" Margin="5,5" Style="{StaticResource WhiteButtonStyle}"/>
             <Button Content="Delete Tour Log" Command="{Binding DeleteTourLogCommand}" Margin="5,5" Style="{StaticResource WhiteButtonStyle}"/>

@@ -34,6 +34,10 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
 
         public void AddTour(Tour tour)
         {
+            if (string.IsNullOrWhiteSpace(tour.RouteImage))
+            {
+                tour.RouteImage = "default_route_image.png"; // Ensure default value
+            }
             log.Info($"Adding Tour: {tour.TourName}");
             _context.Tours.Add(tour);
             _context.SaveChanges();
