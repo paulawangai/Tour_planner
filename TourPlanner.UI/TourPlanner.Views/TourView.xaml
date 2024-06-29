@@ -99,23 +99,23 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="From:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
-                    <TextBox Text="{Binding NewTourFrom}" Style="{StaticResource PlaceholderTextBox}" Tag="From" Width="300"/>
+                    <TextBox Text="{Binding TourViewModel.NewTourFrom}" Style="{StaticResource PlaceholderTextBox}" Tag="From" Width="300"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="To:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
-                    <TextBox Text="{Binding NewTourTo}" Style="{StaticResource PlaceholderTextBox}" Tag="To" Width="300"/>
+                    <TextBox Text="{Binding TourViewModel.NewTourTo}" Style="{StaticResource PlaceholderTextBox}" Tag="To" Width="300"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="Transport Type:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
-                    <TextBox Text="{Binding NewTourTransportType}" Style="{StaticResource PlaceholderTextBox}" Tag="Transport Type" Width="300"/>
+                    <TextBox Text="{Binding TourViewModel.NewTourTransportType}" Style="{StaticResource PlaceholderTextBox}" Tag="Transport Type" Width="300"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="Popularity:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
-                    <TextBox Text="{Binding Popularity}" IsReadOnly="True" Background="LightGray" Foreground="Black" Width="300"/>
+                    <TextBox Text="{Binding TourViewModel.Popularity}" IsReadOnly="True" Background="LightGray" Foreground="Black" Width="300"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="Child Friendliness:" VerticalAlignment="Center" Foreground="Black" Width="150"/>
-                    <TextBox Text="{Binding ChildFriendliness}" IsReadOnly="True" Background="LightGray" Foreground="Black" Width="300"/>
+                    <TextBox Text="{Binding TourViewModel.ChildFriendliness}" IsReadOnly="True" Background="LightGray" Foreground="Black" Width="300"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

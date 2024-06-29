@@ -11,15 +11,20 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.Views
     {
         private readonly TourViewModel _viewModel;
 
-        public MainWindow(TourViewModel tourViewModel)
+        public MainWindow(TourViewModel tourViewModel, TourLogViewModel tourLogViewModel)
         {
             InitializeComponent();
             _viewModel = tourViewModel;
+            DataContext = this;
             DataContext = _viewModel;
+            DataContext = tourLogViewModel;
             _viewModel.RouteDisplayRequested += OnRouteDisplayRequested;
 
             Loaded += MainWindow_Loaded;
         }
+
+        public TourViewModel TourViewModel { get; }
+        public TourLogViewModel TourLogViewModel { get; }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {

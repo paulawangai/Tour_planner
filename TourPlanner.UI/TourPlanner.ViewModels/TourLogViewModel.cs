@@ -12,8 +12,11 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         private static readonly ILog log = LogManager.GetLogger(typeof(TourLogViewModel));
         private readonly TourLogService _tourLogService;
+        private readonly TourService _tourService;
 
         public ObservableCollection<TourLog> TourLogs { get; private set; }
+        public ObservableCollection<Tour> Tours { get; private set; }
+
         private TourLog _selectedTourLog;
         public TourLog SelectedTourLog {
             get => _selectedTourLog;
@@ -21,6 +24,14 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                 SetProperty(ref _selectedTourLog, value);
                 (UpdateTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteTourLogCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        private Tour _selectedTour;
+        public Tour SelectedTour {
+            get => _selectedTour;
+            set {
+                SetProperty(ref _selectedTour, value);
             }
         }
 
@@ -41,9 +52,12 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         public string SearchText { get; set; }
 
-        public TourLogViewModel(TourLogService tourLogService) {
+        public TourLogViewModel(TourLogService tourLogService, TourService tourService) {
             _tourLogService = tourLogService;
+            _tourService = tourService;
+
             TourLogs = new ObservableCollection<TourLog>(_tourLogService.GetAllTourLogs());
+            Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
 
             AddTourLogCommand = new RelayCommand(param => AddTourLog());
             UpdateTourLogCommand = new RelayCommand(param => UpdateTourLog(), param => CanModifyTourLog());
@@ -52,26 +66,33 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
         }
 
         private void AddTourLog() {
-            log.Info("Adding a new tour log.");
-            var newTourLog = new TourLog {
-                DateTime = NewTourLogDateTime,
-                Comment = NewTourLogComment,
-                Difficulty = NewTourLogDifficulty,
-                TotalDistance = NewTourLogTotalDistance,
-                TotalTime = NewTourLogTotalTime,
-                Rating = NewTourLogRating,
-                StatusMessage = NewTourLogStatusMessage
-            };
+            if (SelectedTour != null) {
+                log.Info("Adding a new tour log.");
+                var newTourLog = new TourLog {
+                    TourId = SelectedTour.TourId,
+                    DateTime = NewTourLogDateTime,
+                    Comment = NewTourLogComment,
+                    Difficulty = NewTourLogDifficulty,
+                    TotalDistance = NewTourLogTotalDistance,
+                    TotalTime = NewTourLogTotalTime,
+                    Rating = NewTourLogRating,
+                    StatusMessage = NewTourLogStatusMessage,
+                };
 
-            _tourLogService.AddTourLog(newTourLog);
-            TourLogs.Add(newTourLog);
-            ClearNewTourLogFields();
-            log.Info("New tour log added.");
+                _tourLogService.AddTourLog(newTourLog);
+                TourLogs.Add(newTourLog);
+                ClearNewTourLogFields();
+                log.Info("New tour log added.");
+            }
+            else {
+                log.Warn("No tour selected. Cannot add tour log.");
+            }
         }
 
         private void UpdateTourLog() {
             if (SelectedTourLog != null) {
                 log.Info($"Updating tour log ID: {SelectedTourLog.TourLogId}");
+                SelectedTourLog.TourId = SelectedTour?.TourId ?? SelectedTourLog.TourId;
                 SelectedTourLog.DateTime = NewTourLogDateTime;
                 SelectedTourLog.Comment = NewTourLogComment;
                 SelectedTourLog.Difficulty = NewTourLogDifficulty;

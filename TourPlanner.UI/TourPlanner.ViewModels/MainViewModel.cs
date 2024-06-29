@@ -7,10 +7,14 @@ using Tour_planner.TourPlanner.Commands;
 using Tour_planner.TourPlanner.UI.TourPlanner.Models;
 using log4net;
 using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
+using System.Windows;
 
 namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
     public class MainViewModel : ViewModelBase {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainViewModel));
+
+        public TourViewModel TourViewModel { get; }
+        public TourLogViewModel TourLogViewModel { get; }
 
         private readonly AppDbContext _context;
         private Tour _selectedTour;
@@ -33,18 +37,20 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
         public ICommand GenerateTourReportCommand { get; }
         public ICommand GenerateSummaryReportCommand { get; }
 
-        public MainViewModel(AppDbContext context, TourService tourService) {
+        public MainViewModel(TourViewModel tourViewModel, TourLogViewModel tourLogViewModel, AppDbContext context, TourService tourService) {
+            TourViewModel = tourViewModel;
+            TourLogViewModel = tourLogViewModel;
+
             _context = context;
             _tourService = tourService;
 
             Tours = new ObservableCollection<Tour>(_tourService.GetAllTours());
-            Tours = new ObservableCollection<Tour>(_context.Tours.ToList());
 
-            AddTourCommand = new RelayCommand(param => AddTour());
-            UpdateTourCommand = new RelayCommand(param => UpdateTour(), param => CanExecuteTourCommand());
-            DeleteTourCommand = new RelayCommand(param => DeleteTour(), param => CanExecuteTourCommand());
-            GenerateTourReportCommand = new RelayCommand(param => GenerateTourReport(), param => CanExecuteTourCommand());
-            GenerateSummaryReportCommand = new RelayCommand(param => GenerateSummaryReport());
+            AddTourCommand = new RelayCommand(_ => AddTour());
+            UpdateTourCommand = new RelayCommand(_ => UpdateTour(), _ => CanModifyTour());
+            DeleteTourCommand = new RelayCommand(_ => DeleteTour(), _ => CanModifyTour());
+            GenerateTourReportCommand = new RelayCommand(_ => GenerateTourReport(), _ => CanModifyTour());
+            GenerateSummaryReportCommand = new RelayCommand(_ => GenerateSummaryReport());
         }
 
         private void AddTour() {
@@ -53,8 +59,6 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                 TourName = "New Tour",
                 Description = "Description of the new tour"
             };
-            _context.Tours.Add(newTour);
-            _context.SaveChanges();
             _tourService.AddTour(newTour);
             Tours.Add(newTour);
             log.Info("New tour added.");
@@ -62,15 +66,13 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
 
         private void UpdateTour() {
             log.Info($"Updating tour: {SelectedTour.TourName}");
-            _context.SaveChanges();
+            _tourService.UpdateTour(SelectedTour);
             log.Info("Tour updated.");
         }
 
         private void DeleteTour() {
             if (SelectedTour != null) {
                 log.Info($"Deleting tour: {SelectedTour.TourName}");
-                _context.Tours.Remove(SelectedTour);
-                _context.SaveChanges();
                 _tourService.DeleteTour(SelectedTour);
                 Tours.Remove(SelectedTour);
                 log.Info("Tour deleted.");
@@ -82,6 +84,7 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
                 string outputPath = "tour_report.pdf";
                 _tourService.GenerateTourReport(SelectedTour.TourId, outputPath);
                 log.Info($"Tour report generated for tour ID: {SelectedTour.TourId} at {outputPath}");
+                MessageBox.Show($"Tour report generated at {outputPath}", "Tour Report Generated", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -89,9 +92,10 @@ namespace Tour_planner.TourPlanner.UI.TourPlanner.ViewModels {
             string outputPath = "summary_report.pdf";
             _tourService.GenerateSummaryReport(outputPath);
             log.Info($"Summary report generated at {outputPath}");
+            MessageBox.Show($"Summary report generated at {outputPath}", "Summary Report Generated", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private bool CanExecuteTourCommand() {
+        private bool CanModifyTour() {
             return SelectedTour != null;
         }
     }

@@ -11,11 +11,8 @@ using Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services;
 using Tour_planner.TourPlanner.UI.TourPlanner.ViewModels;
 using Tour_planner.TourPlanner.UI.TourPlanner.Views;
 
-namespace Tour_planner
-{
-    public partial class App : Application
-    {
-
+namespace Tour_planner {
+    public partial class App : Application {
         private static readonly ILog log = LogManager.GetLogger(typeof(App));
         private static IServiceProvider _serviceProvider;
         private static IConfiguration _configuration;
@@ -23,8 +20,7 @@ namespace Tour_planner
         public static IServiceProvider ServiceProvider => _serviceProvider;
         public static IConfiguration Configuration => _configuration;
 
-        protected override void OnStartup(StartupEventArgs e)
-        {
+        protected override void OnStartup(StartupEventArgs e) {
             base.OnStartup(e);
 
             var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
@@ -43,12 +39,16 @@ namespace Tour_planner
 
             _serviceProvider = services.BuildServiceProvider();
 
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            //var mainViewModel = _serviceProvider.GetRequiredService<MainViewModel>();
+            //var mainWindow = new MainWindow();
+            //mainWindow.DataContext = mainViewModel;
+            var tourViewModel = _serviceProvider.GetRequiredService<TourViewModel>();
+            var tourLogViewModel = _serviceProvider.GetRequiredService<TourLogViewModel>();
+            var mainWindow = new MainWindow(tourViewModel, tourLogViewModel);
             mainWindow.Show();
         }
 
-        private void ConfigureServices(IServiceCollection services)
-        {
+        private void ConfigureServices(IServiceCollection services) {
             // Register configuration
             services.AddSingleton<IConfiguration>(_configuration);
 
@@ -56,23 +56,21 @@ namespace Tour_planner
             services.AddDbContext<AppDbContext>((serviceProvider, options) => {
                 var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-            });
+            }, ServiceLifetime.Singleton);
 
             // Register HttpClient
             services.AddHttpClient();
 
-            // Register your services
-            services.AddScoped<OpenRouteService>();
-            services.AddScoped<TourService>();
-            services.AddScoped<TourLogService>();
-            services.AddScoped<TourReportService>();
+            // Register services
+            services.AddSingleton<OpenRouteService>();
+            services.AddSingleton<TourService>();
+            services.AddSingleton<TourLogService>();
+            services.AddSingleton<TourReportService>();
 
-            // Register your ViewModels
-            services.AddTransient<TourViewModel>();
-            services.AddTransient<TourLogViewModel>();
-
-            // Register MainWindow
-            services.AddSingleton<MainWindow>();
+            // Register ViewModels
+            services.AddSingleton<TourViewModel>();
+            services.AddSingleton<TourLogViewModel>();
+            services.AddSingleton<MainViewModel>();
         }
     }
 }

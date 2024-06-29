@@ -61,7 +61,7 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
                 .ToList();
         }
 
-        public async Task GenerateTourReport(int tourId, string outputPath)
+        public void GenerateTourReport(int tourId, string outputPath)
         {
             log.Debug($"Generating report for tour ID: {tourId}");
             var tour = GetTourById(tourId);
@@ -70,7 +70,7 @@ namespace Tour_planner.TourPlanner.BusinessLayer.TourPlanner.Services
             log.Info($"Report generated for tour ID: {tourId} at {outputPath}");
         }
 
-        public async Task GenerateSummaryReport(string outputPath)
+        public void GenerateSummaryReport(string outputPath)
         {
             log.Debug("Generating summary report.");
             var tours = GetAllTours().ToList();
